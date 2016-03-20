@@ -5,6 +5,8 @@ var Story = require('../story');
 var StoryFormat = require('../story-format');
 var argv = require('yargs')
 	.usage('Usage: $0 <files to combine> [options]')
+	.alias('n', 'name')
+	.describe('name', 'Name to set on the generated file')
 	.alias('f', 'format')
 	.describe('format', 'Path to a Twine 2 story format to use')
 	.demand('format', 'A story format must be specified')
@@ -38,5 +40,9 @@ argv._.forEach(function(srcFile) {
 			);
 	}
 });
+
+if (argv.name) {
+	story.attributes.name = argv.name;
+}
 
 console.log(format.publish(story));
