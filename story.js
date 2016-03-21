@@ -37,7 +37,7 @@ Object.assign(Story.prototype, {
 		this.passages = [];
 
 		$story.find('tw-passagedata').each(function(index, el) {
-			var passage = new Passage().loadHtml(cheerio.html(el))
+			var passage = new Passage().loadHtml(cheerio.html(el));
 
 			this.passages.push(passage);
 
@@ -74,6 +74,12 @@ Object.assign(Story.prototype, {
 				this.attributes[attrib] = story.attributes[attrib];
 			}
 		}.bind(this));
+
+		// If we didn't have a start passage before, update it.
+
+		if (this.startPassage === undefined && story.startPassage) {
+			this.startPassage = story.startPassage;
+		}
 
 		return this;
 	},

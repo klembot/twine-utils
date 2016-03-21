@@ -41,6 +41,22 @@ describe('Story', function() {
 		assert.equal(test.passages[1].attributes.name, '1');
 	});
 
+	it('retains the start passage when loading HTML', function() {
+		var test = new Story();
+
+		test.loadHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
+		assert.notEqual(test.startPassage, undefined);
+		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
+	});
+
+	it('updates the start passage when merging in HTML', function() {
+		var test = new Story();
+
+		test.mergeHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
+		assert.notEqual(test.startPassage, undefined);
+		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
+	});
+
 	it('publishes an HTML fragment', function() {
 		var test = new Story();
 		
