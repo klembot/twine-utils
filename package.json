@@ -11,6 +11,10 @@
   "bin": {
 	"entwine": "bin/entwine.js"
   },
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/klembot/twine-utils"
+  },
   "dependencies": {
     "cheerio": "^0.20.0",
     "osenv": "^0.1.3",
