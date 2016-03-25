@@ -24,6 +24,7 @@ Object.assign(StoryFormat.prototype, {
 		this.rawSource = rawSource;
 		global.window = { storyFormat: loader };
 		eval(this.rawSource);
+		return this;
 	},
 
 	// Returns HTML for a story bound to this format.
