@@ -32,8 +32,8 @@ Object.assign(StoryFormat.prototype, {
 	publish: function(story) {
 		var output = this.attributes.source;
 
-		output = output.replace('{{STORY_NAME}}', story.attributes.name);
-		output = output.replace('{{STORY_DATA}}', story.toHtml());
+		output = output.replace(/{{STORY_NAME}}/g, story.attributes.name);
+		output = output.replace(/{{STORY_DATA}}/g, story.toHtml());
 		return output;
 	}
 });
