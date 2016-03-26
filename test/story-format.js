@@ -27,5 +27,10 @@ describe('StoryFormat', function() {
 		testStory.mergeHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
 
 		var output = harlowe.publish(testStory);
+				
+		assert.equal(output.indexOf('{{STORY_NAME}}'), -1);
+		assert.equal(output.indexOf('{{STORY_DATA}}'), -1);
+		assert.notEqual(output.indexOf('<tw-storydata'), -1);
+		assert.notEqual(output.indexOf('<tw-passagedata'), -1);
 	});
 });
