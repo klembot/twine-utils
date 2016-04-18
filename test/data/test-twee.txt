@@ -1,0 +1,7 @@
+:: My First Passage
+It was a dark and stormy [[night]].
+
+:: night [red]
+Ugh, so :: dark.
+:: not linked, but tagged [sneaky and-hyphenated]
+You'd never see this normally.

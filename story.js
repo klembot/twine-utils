@@ -46,7 +46,7 @@ Object.assign(Story.prototype, {
 			}
 		}.bind(this));
 
-		this.stylesheet = $story.find('script[type="text/twine-css"]').html();
+		this.stylesheet = $story.find('style[type="text/twine-css"]').html();
 		this.javascript = $story.find('script[type="text/twine-javascript"]').html();
 
 		return this;
@@ -103,6 +103,47 @@ Object.assign(Story.prototype, {
 	mergeStylesheet: function(source) {
 		this.stylesheet += '\n' + source;
 		return this;
+	},
+
+	// Merges Twee source in with this story.
+
+	mergeTwee: function(source) {
+		var firstLineMatch = /(.*?)[\r\n]{1,2}/;
+		var restMatch = /.*?[\r\n]+(.*)/;
+		var tagMatch = /\[(.*)\]$/m;
+
+		source.split(/^::/m).forEach(function(src) {
+			// The first line will always be the passage title.
+
+			var header = firstLineMatch.exec(src);
+			var rest = restMatch.exec(src);
+
+			if (!header || !rest) {
+				return;
+			}
+			else {
+				header = header[1].trim();
+				rest = rest[1].trim();
+			}
+
+			var passage = new Passage();
+			passage.source = rest;
+
+			// The first line may contain a bracketed, space-delimited list of
+			// tags.
+
+			var tagSource = tagMatch.exec(header);
+
+			if (tagSource) {
+				passage.attributes.tags = tagSource[1].split(/\s+/);
+				passage.attributes.name = header.substring(0, header.indexOf('[')).trim();
+			}
+			else {
+				passage.attributes.name = header;
+			}
+
+			this.passages.push(passage);
+		}.bind(this));
 	},
 
 	// Returns an HTML fragment for this story. Normally, you'd use a

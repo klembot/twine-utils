@@ -15,7 +15,7 @@ describe('Story', function() {
 		assert.equal(empty.stylesheet, '');
 		assert.equal(empty.javascript, '');
 	});
-
+	
 	it('merges JavaScript', function() {
 		var test = new Story({ javascript: 'line 1\nline 2' });
 
@@ -31,6 +31,12 @@ describe('Story', function() {
 		test.mergeStylesheet('line 3\nline 4');
 		assert.equal(test.stylesheet, 'line 1\nline 2\nline 3\nline 4');
 	});
+	
+	it('merges a stylesheet into an empty one', function() {
+		var test = new Story();
+		test.mergeStylesheet('line 1\nline 2');
+		assert.equal(test.stylesheet, '\nline 1\nline 2');
+	});
 
 	it('merges stories in HTML format', function() {
 		var test = new Story();
@@ -41,12 +47,45 @@ describe('Story', function() {
 		assert.equal(test.passages[1].attributes.name, '1');
 	});
 
+	it('merges Twee source', function() {
+		var test = new Story();
+
+		test.mergeTwee(fs.readFileSync('test/data/test-twee.txt', { encoding: 'utf8' }));
+		assert.equal(test.passages.length, 3); 
+		assert.equal(test.passages[0].attributes.name, 'My First Passage'); 
+		assert.equal(test.passages[0].attributes.tags, undefined); 
+		assert.equal(test.passages[0].source, 'It was a dark and stormy [[night]].'); 
+		assert.equal(test.passages[1].attributes.name, 'night'); 
+		assert.equal(test.passages[1].attributes.tags.length, 1); 
+		assert.equal(test.passages[1].attributes.tags[0], 'red'); 
+		assert.equal(test.passages[1].source, 'Ugh, so :: dark.'); 
+		assert.equal(test.passages[2].attributes.name, 'not linked, but tagged'); 
+		assert.equal(test.passages[2].attributes.tags.length, 2); 
+		assert.equal(test.passages[2].attributes.tags[0], 'sneaky'); 
+		assert.equal(test.passages[2].attributes.tags[1], 'and-hyphenated'); 
+		assert.equal(test.passages[2].source, "You'd never see this normally."); 
+	});
+
 	it('retains the start passage when loading HTML', function() {
 		var test = new Story();
 
 		test.loadHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
 		assert.notEqual(test.startPassage, undefined);
 		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
+	});
+
+	it('handles an empty stylesheet properly when loading HTML', function() {
+		var test = new Story();
+		
+		test.loadHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
+		assert.equal(test.stylesheet, '');		
+	});
+
+	it('handles an empty JavaScript property properly when loading HTML', function() {
+		var test = new Story();
+		
+		test.loadHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
+		assert.equal(test.javascript, '');		
 	});
 
 	it('updates the start passage when merging in HTML', function() {
@@ -56,7 +95,7 @@ describe('Story', function() {
 		assert.notEqual(test.startPassage, undefined);
 		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
 	});
-
+	
 	it('publishes an HTML fragment', function() {
 		var test = new Story();
 		

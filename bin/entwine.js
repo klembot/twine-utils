@@ -34,6 +34,12 @@ argv._.forEach(function(srcFile) {
 			story.mergeJavascript(src);
 			break;
 
+		case 'txt':
+		case 'twee':
+		case 'tw':
+			story.mergeTwee(src);
+			break;
+
 		default:
 			console.error(
 				"Don't know how to merge a file with extension " + path.extname(src)
