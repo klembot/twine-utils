@@ -51,7 +51,7 @@ describe('Story', function() {
 		var test = new Story();
 
 		test.mergeTwee(fs.readFileSync('test/data/test-twee.txt', { encoding: 'utf8' }));
-		assert.equal(test.passages.length, 3); 
+		assert.equal(test.passages.length, 4); 
 		assert.equal(test.passages[0].attributes.name, 'My First Passage'); 
 		assert.equal(test.passages[0].attributes.tags, undefined); 
 		assert.equal(test.passages[0].source, 'It was a dark and stormy [[night]].'); 
@@ -64,6 +64,8 @@ describe('Story', function() {
 		assert.equal(test.passages[2].attributes.tags[0], 'sneaky'); 
 		assert.equal(test.passages[2].attributes.tags[1], 'and-hyphenated'); 
 		assert.equal(test.passages[2].source, "You'd never see this normally."); 
+		assert.equal(test.passages[3].attributes.name, 'A long passage');
+		assert.equal(test.passages[3].source, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nisl tortor,\nultricies congue semper non, commodo vel dui. Donec sollicitudin turpis id nisi\ndictum fringilla. Integer congue, massa sed aliquet imperdiet, neque dolor\nscelerisque diam, quis congue elit massa a ex. Nunc iaculis lacinia sem id\nconvallis. Nam eget efficitur risus, et ullamcorper libero. Nam nec rhoncus\nurna, eu volutpat tortor. Donec vulputate nunc non ante volutpat sollicitudin.\nPhasellus at lorem in ex fringilla consectetur sed eu tellus. Sed feugiat\nsagittis ante, et tempus ligula aliquam et. Mauris vestibulum magna ac ante\naliquet aliquam. Cras tortor ligula, finibus eu rutrum eget, tristique vitae\nenim. Morbi nunc magna, pharetra nec ipsum sed, mollis fermentum orci.");
 	});
 
 	it('retains the start passage when loading HTML', function() {

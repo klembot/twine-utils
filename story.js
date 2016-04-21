@@ -108,8 +108,8 @@ Object.assign(Story.prototype, {
 	// Merges Twee source in with this story.
 
 	mergeTwee: function(source) {
-		var firstLineMatch = /(.*?)[\r\n]{1,2}/;
-		var restMatch = /.*?[\r\n]+(.*)/;
+		var firstLineMatch = /.*/;
+		var restMatch = /.*?[\r\n]{1,2}([\s\S]*)/m;
 		var tagMatch = /\[(.*)\]$/m;
 
 		source.split(/^::/m).forEach(function(src) {
@@ -122,7 +122,7 @@ Object.assign(Story.prototype, {
 				return;
 			}
 			else {
-				header = header[1].trim();
+				header = header[0].trim();
 				rest = rest[1].trim();
 			}
 
