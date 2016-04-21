@@ -1,7 +1,7 @@
 'use strict';
 var assert = require('assert');
 var fs = require('fs');
-var Passage= require('../passage');
+var Passage = require('../passage');
 
 describe('Passage', function() {
 	it('creates an empty object when constructed without options', function() {
