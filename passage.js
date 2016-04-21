@@ -1,5 +1,6 @@
 'use strict';
 var cheerio = require('cheerio');
+var entities = require('html-entities').AllHtmlEntities;
 
 function Passage(props) {
 	props = props || {};
@@ -36,7 +37,7 @@ Object.assign(Passage.prototype, {
 		output('tw-passagedata')
 			.attr(this.attributes)
 			.attr('pid', pid || this.attributes.pid || '')
-			.html(this.source);
+			.html(entities.encode(this.source));
 		return output.html();
 	}
 });

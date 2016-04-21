@@ -26,4 +26,16 @@ describe('Passage', function() {
 		test.loadHtml(source);
 		assert.equal(test.toHtml().trim(), source.trim());
 	});
+
+	it('encodes HTML entities in attributes', function() {
+		var test = new Passage();
+		test.attributes.encoded = '"&<><br>';
+		assert.equal(test.toHtml(), '<tw-passagedata encoded="&quot;&amp;&lt;&gt;&lt;br&gt;" pid=""></tw-passagedata>');
+	});
+
+	it('encodes HTML entities in source', function() {
+		var test = new Passage();
+		test.source = '"&<><br>';
+		assert.equal(test.toHtml(), '<tw-passagedata pid="">&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata>');
+	});
 });

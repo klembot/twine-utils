@@ -159,4 +159,11 @@ describe('Story', function() {
 		assert.equal($('#twine-user-script').length, 1);
 		assert.equal($('#twine-user-script').html(), 'test 1 2 3 & 4 <>');
 	});
+
+	it('encodes HTML entities in source properly', function() {
+		var test = new Story();
+		test.passages.push(new Passage({ source: '"&<><br>' }));
+		
+		assert.equal(test.toHtml(), '<tw-storydata creator="twine-utils" startnode="0"><tw-passagedata pid="1">&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script></tw-storydata>');
+	});
 });

@@ -1,6 +1,7 @@
 'use strict';
 var assert = require('assert');
 var fs = require('fs');
+var Passage = require('../passage');
 var Story = require('../story');
 var StoryFormat = require('../story-format');
 
@@ -32,5 +33,15 @@ describe('StoryFormat', function() {
 		assert.equal(output.indexOf('{{STORY_DATA}}'), -1);
 		assert.notEqual(output.indexOf('<tw-storydata'), -1);
 		assert.notEqual(output.indexOf('<tw-passagedata'), -1);
+	});
+
+	it('properly encodes HTML while publishing', function() {
+		var story = new Story();
+		var test = new StoryFormat();
+
+		story.passages.push(new Passage({ source: '"&<><br>' }));
+		test.attributes = { source: '{{STORY_DATA}}' };
+
+		assert.equal(test.publish(story), '<tw-storydata creator="twine-utils" startnode="0"><tw-passagedata pid="1">&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script></tw-storydata>');
 	});
 });
