@@ -95,6 +95,15 @@ describe('Story', function() {
 		assert.notEqual(test.startPassage, undefined);
 		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
 	});
+
+	it('changes the start passage with setStartByName', function() {
+		var test = new Story();
+		test.mergeHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
+		assert.equal(test.startPassage.attributes.name, 'Untitled Passage');
+		test.setStartByName('1');
+		assert.equal(test.startPassage.attributes.name, '1');
+		assert.equal(test.startPassage.source, 'This is another passage.');
+	});
 	
 	it('publishes an HTML fragment', function() {
 		var test = new Story();
@@ -144,10 +153,10 @@ describe('Story', function() {
 	});
 
 	it('publishes JavaScript as a separate element', function() {
-		var test = new Story({ javascript: 'test 1 2 3' });
+		var test = new Story({ javascript: 'test 1 2 3 & 4 <>' });
 		var $ = cheerio.load(test.toHtml());
 
 		assert.equal($('#twine-user-script').length, 1);
-		assert.equal($('#twine-user-script').html(), 'test 1 2 3');
+		assert.equal($('#twine-user-script').html(), 'test 1 2 3 & 4 <>');
 	});
 });

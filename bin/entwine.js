@@ -9,6 +9,8 @@ var argv = require('yargs')
 	.describe('name', 'Name to set on the generated file')
 	.alias('f', 'format')
 	.describe('format', 'Path to a Twine 2 story format to use')
+	.alias('s', 'start')
+	.describe('start', 'Name of the passage to set as start')
 	.demand('format', 'A story format must be specified')
 	.demand(1)
 	.help()
@@ -49,6 +51,10 @@ argv._.forEach(function(srcFile) {
 
 if (argv.name) {
 	story.attributes.name = argv.name;
+}
+
+if (argv.start) {
+	story.setStartByName(argv.start);
 }
 
 console.log(format.publish(story));

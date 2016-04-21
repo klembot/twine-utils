@@ -146,6 +146,20 @@ Object.assign(Story.prototype, {
 		}.bind(this));
 	},
 
+	// Sets the start attribute to a named passage.
+
+	setStartByName: function(name) {
+		var target = this.passages.find(function(passage) {
+			return passage.attributes.name === name;
+		}.bind(this));
+
+		if (!target) {
+			throw new Error("This story has no passage named '" + name + "'.");
+		}
+
+		this.startPassage = target;
+	},
+
 	// Returns an HTML fragment for this story. Normally, you'd use a
 	// StoryFormat to bind it as a complete HTML page.
 
