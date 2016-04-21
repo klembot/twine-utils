@@ -137,6 +137,16 @@ Object.assign(Story.prototype, {
 			if (tagSource) {
 				passage.attributes.tags = tagSource[1].split(/\s+/);
 				passage.attributes.name = header.substring(0, header.indexOf('[')).trim();
+
+				// Handle script and stylesheet tagged passages.
+
+				if (passage.attributes.tags.indexOf('stylesheet') !== -1) {
+					this.mergeStylesheet(passage.source);
+				}
+
+				if (passage.attributes.tags.indexOf('script') !== -1) {
+					this.mergeJavaScript(passage.source);
+				}
 			}
 			else {
 				passage.attributes.name = header;
@@ -181,8 +191,8 @@ Object.assign(Story.prototype, {
 				'id="twine-user-script" type="text/twine-javascript">' +
 				'</script>');
 
-		output('#twine-user-script').html(this.javascript);
-		output('#twine-user-stylesheet').html(this.stylesheet);
+		output('#twine-user-script').text(this.javascript);
+		output('#twine-user-stylesheet').text(this.stylesheet);
 
 		return output.html();
 	}
