@@ -27,7 +27,7 @@ Object.assign(Passage.prototype, {
 		}
 
 		this.attributes = $passage[0].attribs;
-		this.source = $passage.eq(0).html();
+		this.source = $passage.eq(0).text();
 		return this;
 	},
 

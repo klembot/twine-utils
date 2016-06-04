@@ -44,7 +44,9 @@ describe('Story', function() {
 		test.mergeHtml(fs.readFileSync('test/data/test-story.html', { encoding: 'utf8' }));
 		assert.equal(test.passages.length, 2);
 		assert.equal(test.passages[0].attributes.name, 'Untitled Passage');
+		assert.equal(test.passages[0].source, 'This is some text with "quotes" & other characters.\n\n[[1]]');
 		assert.equal(test.passages[1].attributes.name, '1');
+		assert.equal(test.passages[1].source, 'This is another passage.');
 	});
 
 	it('merges Twee source', function() {
@@ -117,6 +119,8 @@ describe('Story', function() {
 		assert.equal($('tw-storydata').attr('name'), 'Test');
 		assert.equal($('tw-passagedata').length, 2);
 		assert.equal($('tw-passagedata').eq(0).attr('name'), 'Untitled Passage');
+		assert.equal($('tw-passagedata').eq(0).text(), 'This is some text with "quotes" & other characters.\n\n[[1]]');
+		assert.equal($('tw-passagedata').eq(1).text(), 'This is another passage.');
 	});
 
 	it('publishes an HTML fragment with ordered passage IDs', function() {
