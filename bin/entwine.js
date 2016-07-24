@@ -24,7 +24,7 @@ argv._.forEach(function(srcFile) {
 
 	switch (path.extname(srcFile)) {
 		case 'css':
-			story.mergeCss(src);
+			story.mergeStylesheet(src);
 			break;
 
 		case 'htm':
