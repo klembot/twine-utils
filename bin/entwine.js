@@ -23,28 +23,28 @@ argv._.forEach(function(srcFile) {
 	var src = fs.readFileSync(srcFile, { encoding: 'utf8' });
 
 	switch (path.extname(srcFile)) {
-		case 'css':
+		case '.css':
 			story.mergeStylesheet(src);
 			break;
 
-		case 'htm':
-		case 'html':
+		case '.htm':
+		case '.html':
 			story.mergeHtml(src);
 			break;
 
-		case 'js':
+		case '.js':
 			story.mergeJavascript(src);
 			break;
 
-		case 'txt':
-		case 'twee':
-		case 'tw':
+		case '.txt':
+		case '.twee':
+		case '.tw':
 			story.mergeTwee(src);
 			break;
 
 		default:
 			console.error(
-				"Don't know how to merge a file with extension " + path.extname(src)
+				"Don't know how to merge a file with extension " + path.extname(srcFile)
 			);
 	}
 });
