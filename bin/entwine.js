@@ -33,7 +33,7 @@ argv._.forEach(function(srcFile) {
 			break;
 
 		case '.js':
-			story.mergeJavascript(src);
+			story.mergeJavaScript(src);
 			break;
 
 		case '.txt':
