@@ -4,7 +4,7 @@
 	"description": "Utilities for working with Twine 2 stories and story formats.",
 	"main": "index.js",
 	"scripts": {
-		"test": "mocha"
+		"test": "jest"
 	},
 	"author": "Chris Klimas <chris@twinery.org>",
 	"license": "GPL-3.0",
@@ -22,6 +22,7 @@
 		"yargs": "^4.3.1"
 	},
 	"devDependencies": {
+		"jest": "^24.9.0",
 		"mocha": "^2.4.5"
 	}
 }
