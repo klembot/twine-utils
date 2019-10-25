@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-var fs = require('fs');
-var path = require('path');
-var Story = require('../story');
-var StoryFormat = require('../story-format');
-var argv = require('yargs')
+const fs = require('fs');
+const path = require('path');
+const Story = require('../story');
+const StoryFormat = require('../story-format');
+const argv = require('yargs')
 	.usage('Usage: $0 <files to combine> [options]')
 	.alias('n', 'name')
 	.describe('name', 'Name to set on the generated file')
@@ -13,14 +13,15 @@ var argv = require('yargs')
 	.describe('start', 'Name of the passage to set as start')
 	.demand('format', 'A story format must be specified')
 	.demand(1)
-	.help()
-	.argv;
+	.help().argv;
 
-var format = new StoryFormat(fs.readFileSync(argv.format, { encoding: 'utf8' }));
-var story = new Story();
+const format = new StoryFormat(
+	fs.readFileSync(argv.format, {encoding: 'utf8'})
+);
+const story = new Story();
 
-argv._.forEach(function(srcFile) {
-	var src = fs.readFileSync(srcFile, { encoding: 'utf8' });
+argv._.forEach(srcFile => {
+	const src = fs.readFileSync(srcFile, {encoding: 'utf8'});
 
 	switch (path.extname(srcFile)) {
 		case '.css':
@@ -44,7 +45,8 @@ argv._.forEach(function(srcFile) {
 
 		default:
 			console.error(
-				"Don't know how to merge a file with extension " + path.extname(srcFile)
+				"Don't know how to merge a file with extension " +
+					path.extname(srcFile)
 			);
 	}
 });
