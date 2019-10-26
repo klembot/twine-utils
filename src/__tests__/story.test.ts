@@ -114,7 +114,7 @@ describe('Story', () => {
 	});
 
 	it('handles an empty JavaScript property properly when loading HTML', () => {
-		var test = new Story();
+		const test = new Story();
 
 		test.loadHtml(testStoryHtml);
 		expect(test.javascript).toBe('');
