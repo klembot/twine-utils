@@ -1,22 +1,26 @@
-const fs = require('fs');
-const {promisify} = require('util');
-const Passage = require('../passage');
-const Story = require('../story');
-const StoryFormat = require('../story-format');
+import fs from 'fs';
+import path from 'path';
+import {promisify} from 'util';
+import Passage from '../passage';
+import Story from '../story';
+import StoryFormat from '../story-format';
 
 const readFile = promisify(fs.readFile);
 
 describe('StoryFormat', () => {
-	let harloweSrc;
-	let testStoryHtml;
+	let harloweSrc: string;
+	let testStoryHtml: string;
 
 	beforeAll(async () => {
-		harloweSrc = await readFile('./__tests__/data/harlowe.js', {
+		harloweSrc = await readFile(path.join(__dirname, 'data/harlowe.js'), {
 			encoding: 'utf8'
 		});
-		testStoryHtml = await readFile('./__tests__/data/test-story.html', {
-			encoding: 'utf8'
-		});
+		testStoryHtml = await readFile(
+			path.join(__dirname, 'data/test-story.html'),
+			{
+				encoding: 'utf8'
+			}
+		);
 	});
 
 	it('creates an empty object when constructed without options', () => {

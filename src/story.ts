@@ -1,8 +1,25 @@
-const cheerio = require('cheerio');
-const Passage = require('./passage');
+/**
+ * Represents a Twine story.
+ */
 
-class Story {
-	constructor(props = {}) {
+import cheerio from 'cheerio';
+import Passage from './passage';
+
+interface StoryOptions {
+	attributes?: {[key: string]: any};
+	javascript?: string;
+	stylesheet?: string;
+	passages?: Passage[];
+}
+
+export default class Story {
+	attributes: {[key: string]: any};
+	javascript: string;
+	startPassage: Passage;
+	stylesheet: string;
+	passages: Passage[];
+
+	constructor(props: StoryOptions = {}) {
 		this.attributes = props.attributes || {};
 
 		// Set ourselves as the story creator by default.
@@ -16,21 +33,22 @@ class Story {
 		this.stylesheet = props.stylesheet || '';
 	}
 
-	// Loads the contents of an HTML file, replacing properties of this story.
+	/**
+	 * Loads the contents of an HTML file, replacing properties of this story.
+	 */
 
-	loadHtml(source) {
+	loadHtml(source: string) {
 		const $ = cheerio.load(source);
 		const $story = $('tw-storydata');
 
-		if ($story.length == 0) {
+		if ($story.length === 0) {
 			console.error(
 				'Warning: there are no stories in this HTML source code.'
 			);
 			return this;
 		} else if ($story.length > 1) {
 			console.error(
-				'Warning: there appears to be more than one story ' +
-					'in this HTML source code. Using the first.'
+				'Warning: there appears to be more than one story in this HTML source code. Using the first.'
 			);
 		}
 
@@ -55,9 +73,11 @@ class Story {
 		return this;
 	}
 
-	// Merges the contents of another story object with this one.
+	/**
+	 * Merges the contents of another story object with this one.
+	 */
 
-	mergeStory(story) {
+	mergeStory(story: Story) {
 		if (story.passages.length !== 0) {
 			this.passages = this.passages.concat(story.passages);
 		}
@@ -87,31 +107,39 @@ class Story {
 		return this;
 	}
 
-	// A convenience method that merges the contents of a story in HTML form.
+	/**
+	 * A convenience method that merges the contents of a story in HTML form.
+	 */
 
-	mergeHtml(source) {
+	mergeHtml(source: string) {
 		var toMerge = new Story().loadHtml(source);
 		this.mergeStory(toMerge);
 		return this;
 	}
 
-	// Merges JavaScript source in with this story.
+	/**
+	 * Merges JavaScript source in with this story.
+	 */
 
-	mergeJavaScript(source) {
+	mergeJavaScript(source: string) {
 		this.javascript += '\n' + source;
 		return this;
 	}
 
-	// Merges CSS source in with this story.
+	/**
+	 * Merges CSS source in with this story.
+	 */
 
-	mergeStylesheet(source) {
+	mergeStylesheet(source: string) {
 		this.stylesheet += '\n' + source;
 		return this;
 	}
 
-	// Merges Twee source in with this story.
+	/**
+	 * Merges Twee source in with this story.
+	 */
 
-	mergeTwee(source) {
+	mergeTwee(source: string) {
 		const firstLineMatch = /.*/;
 		const restMatch = /.*?[\r\n]{1,2}([\s\S]*)/m;
 		const tagMatch = /\[(.*)\]$/m;
@@ -121,26 +149,29 @@ class Story {
 
 			let header = firstLineMatch.exec(src);
 			let rest = restMatch.exec(src);
+			let headerText: string;
+			let restText: string;
 
 			if (!header || !rest) {
 				return;
-			} else {
-				header = header[0].trim();
-				rest = rest[1].trim();
 			}
 
+			headerText = header[0].trim();
+			restText = rest[1].trim();
+
 			const passage = new Passage();
-			passage.source = rest;
+
+			passage.source = restText;
 
 			// The first line may contain a bracketed, space-delimited list of
 			// tags.
 
-			const tagSource = tagMatch.exec(header);
+			const tagSource = tagMatch.exec(headerText);
 
 			if (tagSource) {
 				passage.attributes.tags = tagSource[1].split(/\s+/);
-				passage.attributes.name = header
-					.substring(0, header.indexOf('['))
+				passage.attributes.name = headerText
+					.substring(0, headerText.indexOf('['))
 					.trim();
 
 				// Handle script and stylesheet tagged passages.
@@ -153,16 +184,18 @@ class Story {
 					this.mergeJavaScript(passage.source);
 				}
 			} else {
-				passage.attributes.name = header;
+				passage.attributes.name = headerText;
 			}
 
 			this.passages.push(passage);
 		});
 	}
 
-	// Sets the start attribute to a named passage.
+	/**
+	 * Sets the start attribute to a named passage.
+	 */
 
-	setStartByName(name) {
+	setStartByName(name: string) {
 		const target = this.passages.find(
 			passage => passage.attributes.name === name
 		);
@@ -174,8 +207,10 @@ class Story {
 		this.startPassage = target;
 	}
 
-	// Returns an HTML fragment for this story. Normally, you'd use a
-	// StoryFormat to bind it as a complete HTML page.
+	/**
+	 * Returns an HTML fragment for this story. Normally, you'd use a
+	 * StoryFormat to bind it as a complete HTML page.
+	 */
 
 	toHtml() {
 		const output = cheerio.load('<tw-storydata></tw-storydata>');
@@ -202,5 +237,3 @@ class Story {
 		return output.html();
 	}
 }
-
-module.exports = Story;

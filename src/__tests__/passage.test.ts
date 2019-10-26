@@ -1,20 +1,18 @@
-const {readFile} = require('fs');
-const Passage = require('../passage');
+import fs from 'fs';
+import path from 'path';
+import {promisify} from 'util';
+import Passage from '../passage';
+
+const readFile = promisify(fs.readFile);
 
 describe('Passage', () => {
 	let testPassageHtml;
 
-	beforeAll(done => {
-		readFile(
-			'./__tests__/data/test-passage.html',
-			{encoding: 'utf8'},
-			(err, data) => {
-				if (err) {
-					throw new Error(err);
-				}
-
-				testPassageHtml = data;
-				done();
+	beforeAll(async () => {
+		testPassageHtml = await readFile(
+			path.join(__dirname, 'data/test-passage.html'),
+			{
+				encoding: 'utf8'
 			}
 		);
 	});

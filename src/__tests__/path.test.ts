@@ -1,9 +1,9 @@
-const fs = require('fs');
-const twinePath = require('../path');
+import fs from 'fs';
+import {storyDirectorySync} from '../path';
 
 describe('Path', () => {
 	it('locates the Stories directory synchronously', () => {
-		const path = twinePath.storyDirectorySync();
+		const path = storyDirectorySync();
 
 		expect(() => fs.accessSync(path)).not.toThrow();
 	});

@@ -1,20 +1,34 @@
-const cheerio = require('cheerio');
-const entities = require('html-entities').AllHtmlEntities;
+/**
+ * A single passage in a story.
+ */
 
-class Passage {
-	constructor(props = {}) {
+import cheerio from 'cheerio';
+import {AllHtmlEntities} from 'html-entities';
+
+interface PassageOptions {
+	attributes?: {[key: string]: any};
+	source?: string;
+}
+
+export default class Passage {
+	attributes: {[key: string]: any};
+	source: string;
+
+	constructor(props: PassageOptions = {}) {
 		this.attributes = props.attributes || {};
 		this.source = props.source || '';
 	}
 
-	// Loads the contents of an HTML fragment, replacing properties of this
-	// object.
+	/**
+	 *  Loads the contents of an HTML fragment, replacing properties of this
+	 *  object.
+	 */
 
-	loadHtml(src) {
+	loadHtml(src: string) {
 		const $ = cheerio.load(src);
 		const $passage = $('tw-passagedata');
 
-		if ($passage.length == 0) {
+		if ($passage.length === 0) {
 			console.error(
 				'Warning: there are no passages in this HTML ' + 'source code.'
 			);
@@ -31,12 +45,17 @@ class Passage {
 		return this;
 	}
 
-	toHtml(pid) {
+	/**
+	 * Outputs the passage as an HTML fragment, optionally setting the passage
+	 * id (or pid) manually.
+	 */
+
+	toHtml(pid?: number) {
 		const output = cheerio.load('<tw-passagedata></tw-passagedata>');
 
 		output('tw-passagedata')
 			.attr(this.attributes)
-			.html(entities.encode(this.source));
+			.html(AllHtmlEntities.encode(this.source));
 
 		if (pid || this.attributes.pid) {
 			output('tw-passagedata').attr('pid', pid || this.attributes.pid);
@@ -45,5 +64,3 @@ class Passage {
 		return output.html();
 	}
 }
-
-module.exports = Passage;

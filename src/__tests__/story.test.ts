@@ -1,20 +1,22 @@
-const cheerio = require('cheerio');
-const fs = require('fs');
-const {promisify} = require('util');
-const Passage = require('../passage');
-const Story = require('../story');
+import cheerio from 'cheerio';
+import fs from 'fs';
+import path from 'path';
+import {promisify} from 'util';
+import Passage from '../passage';
+import Story from '../story';
 
 const readFile = promisify(fs.readFile);
 
 describe('Story', () => {
-	let testTwee;
-	let testStoryHtml;
+	let testTwee: string;
+	let testStoryHtml: string;
 
 	beforeAll(async () => {
-		testStoryHtml = await readFile('./__tests__/data/test-story.html', {
-			encoding: 'utf8'
-		});
-		testTwee = await readFile('./__tests__/data/test-twee.txt', {
+		testStoryHtml = await readFile(
+			path.join(__dirname, 'data/test-story.html'),
+			{encoding: 'utf8'}
+		);
+		testTwee = await readFile(path.join(__dirname, 'data/test-twee.txt'), {
 			encoding: 'utf8'
 		});
 	});
@@ -166,11 +168,7 @@ describe('Story', () => {
 	it('publishes an HTML fragment with ordered passage IDs', () => {
 		const test = new Story();
 
-		test.passages = [
-			new Passage({name: 'test1'}),
-			new Passage({name: 'test2'}),
-			new Passage({name: 'test3'})
-		];
+		test.passages = [new Passage(), new Passage(), new Passage()];
 
 		const $ = cheerio.load(test.toHtml());
 
@@ -182,11 +180,7 @@ describe('Story', () => {
 	it('publishes an HTML fragment with the correct start node index', () => {
 		const test = new Story();
 
-		test.passages = [
-			new Passage({name: 'test1'}),
-			new Passage({name: 'test2'}),
-			new Passage({name: 'test3'})
-		];
+		test.passages = [new Passage(), new Passage(), new Passage()];
 		test.startPassage = test.passages[1];
 
 		const $ = cheerio.load(test.toHtml());
