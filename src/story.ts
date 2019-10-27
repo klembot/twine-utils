@@ -52,7 +52,7 @@ export default class Story {
 			);
 		}
 
-		this.attributes = $story[0].attribs;
+		this.attributes = {...$story[0].attribs, hidden: undefined};
 		this.passages = [];
 
 		$story.find('tw-passagedata').each((index, el) => {
@@ -283,5 +283,33 @@ export default class Story {
 		output('#twine-user-stylesheet').text(this.stylesheet);
 
 		return output.html();
+	}
+
+	/**
+	 * Returns Twee source code for this story. *Warning:* if the Twee version
+	 * specified is less than 3, this is a lossy conversion.
+	 * @param tweeVersion version of Twee to use
+	 * @param passageSpacer text to output between passages, e.g. one or more newlines
+	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
+	 */
+
+	toTwee(tweeVersion = 3, passageSpacer = '\n\n') {
+		let output = this.passages.reduce((result, current) => {
+			return result + current.toTwee(tweeVersion) + passageSpacer;
+		}, '');
+
+		if (tweeVersion >= 3) {
+			output += `:: StoryTitle\n${this.attributes.name}` + passageSpacer;
+			output += `:: StoryData\n${JSON.stringify(
+				{
+					...this.attributes,
+					name: undefined
+				},
+				null,
+				2
+			)}`;
+		}
+
+		return output.trim();
 	}
 }

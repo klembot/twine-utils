@@ -259,4 +259,22 @@ describe('Story', () => {
 			'<tw-storydata creator="twine-utils" startnode="0"><tw-passagedata pid="1">&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script></tw-storydata>'
 		);
 	});
+
+	it('outputs Twee', () => {
+		const test = new Story();
+
+		test.loadHtml(testStoryHtml);
+		expect(test.toTwee()).toBe(
+			':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1 {"position":"247,286"}\nThis is another passage.\n\n:: StoryTitle\nTest\n\n:: StoryData\n{\n  "startnode": "1",\n  "creator": "Twine",\n  "creator-version": "2.0.11",\n  "ifid": "3AE380EE-4B34-4D0D-A8E2-BE624EB271C9",\n  "format": "SugarCube",\n  "options": ""\n}'
+		);
+	});
+
+	it('outputs Twee < version 3', () => {
+		const test = new Story();
+
+		test.loadHtml(testStoryHtml);
+		expect(test.toTwee(1)).toBe(
+			':: Untitled Passage [foo]\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1\nThis is another passage.'
+		);
+	});
 });

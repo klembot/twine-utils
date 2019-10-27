@@ -30,7 +30,7 @@ describe('Passage', () => {
 		test.loadHtml(testPassageHtml);
 		expect(test.source.length > 0).toBe(true);
 		expect(test.attributes.name).toBe('Untitled Passage');
-		expect(test.attributes.tags).toBe('foo');
+		expect(test.attributes.tags).toEqual(['foo']);
 	});
 
 	it('publishes an HTML fragment', () => {
@@ -55,6 +55,24 @@ describe('Passage', () => {
 
 		expect(test.toHtml()).toBe(
 			'<tw-passagedata>&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata>'
+		);
+	});
+
+	it('publishes Twee source code', () => {
+		const test = new Passage();
+
+		test.loadHtml(testPassageHtml);
+		expect(test.toTwee()).toBe(
+			':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text.\n\n[[1]]'
+		);
+	});
+
+	it('publishes Twee source code without attributes when version < 3', () => {
+		const test = new Passage();
+
+		test.loadHtml(testPassageHtml);
+		expect(test.toTwee(1)).toBe(
+			':: Untitled Passage [foo]\nThis is some text.\n\n[[1]]'
 		);
 	});
 });

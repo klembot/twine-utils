@@ -42,12 +42,17 @@ export default class Passage {
 		}
 
 		this.attributes = $passage[0].attribs;
+
+		if (this.attributes.tags) {
+			this.attributes.tags = this.attributes.tags.split(' ');
+		}
+
 		this.source = $passage.eq(0).text();
 		return this;
 	}
 
 	/**
-	 * Outputs the passage as an HTML fragment, optionally setting the passage
+	 * Returns an HTML fragment for this passage, optionally setting the passage
 	 * id (or pid) manually.
 	 */
 
@@ -63,5 +68,34 @@ export default class Passage {
 		}
 
 		return output.html();
+	}
+
+	/**
+	 * Returns Twee source code for this story. *Warning:* if the Twee version
+	 * specified is less than 3, this is a lossy conversion.
+	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
+	 */
+
+	toTwee(tweeVersion = 3) {
+		let output = `:: ${this.attributes.name}`;
+
+		if (this.attributes.tags) {
+			output += ` [${this.attributes.tags.join(' ')}]`;
+		}
+
+		if (tweeVersion >= 3) {
+			const extraAttributes = JSON.stringify({
+				...this.attributes,
+				name: undefined,
+				pid: undefined,
+				tags: undefined
+			});
+
+			if (extraAttributes !== '{}') {
+				output += ` ${extraAttributes}`;
+			}
+		}
+
+		return output + `\n${this.source}`;
 	}
 }
