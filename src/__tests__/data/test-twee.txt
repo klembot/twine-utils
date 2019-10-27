@@ -6,6 +6,9 @@ Ugh, so :: dark.
 :: not linked, but tagged [sneaky and-hyphenated]
 You'd never see this normally.
 
+:: a cramped[passage-with-tag]
+This should be considered a tagged passage.
+
 :: A long passage
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nisl tortor,
 ultricies congue semper non, commodo vel dui. Donec sollicitudin turpis id nisi

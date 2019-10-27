@@ -137,57 +137,105 @@ export default class Story {
 
 	/**
 	 * Merges Twee source in with this story.
+	 * @param source Twee source
+	 * @param tweeVersion version of Twee to use
+	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
 	 */
 
-	mergeTwee(source: string) {
-		const firstLineMatch = /.*/;
-		const restMatch = /.*?[\r\n]{1,2}([\s\S]*)/m;
-		const tagMatch = /\[(.*)\]$/m;
-
+	mergeTwee(source: string, tweeVersion: number = 1) {
 		source.split(/^::/m).forEach(src => {
-			// The first line will always be the passage title.
-
-			let header = firstLineMatch.exec(src);
-			let rest = restMatch.exec(src);
-			let headerText: string;
-			let restText: string;
-
-			if (!header || !rest) {
+			if (src.trim() === '') {
 				return;
 			}
 
-			headerText = header[0].trim();
-			restText = rest[1].trim();
+			const result = new Passage();
 
-			const passage = new Passage();
+			// The first line will always be the passage title.
 
-			passage.source = restText;
+			const firstLineMatch = /^.*$/m.exec(src);
+			let firstLine: string;
 
-			// The first line may contain a bracketed, space-delimited list of
-			// tags.
+			if (firstLineMatch) {
+				firstLine = firstLineMatch[0];
+				result.source = src.substr(firstLineMatch[0].length).trim();
+			} else {
+				result.source = '';
+				firstLine = src;
+			}
 
-			const tagSource = tagMatch.exec(headerText);
+			// If this is Twee v3, there may be a JSON-encoded set of attributes
+			// at the end of the first line.
 
-			if (tagSource) {
-				passage.attributes.tags = tagSource[1].split(/\s+/);
-				passage.attributes.name = headerText
-					.substring(0, headerText.indexOf('['))
-					.trim();
+			if (tweeVersion >= 3) {
+				const attributeMatch = /[^\\](\{.*\})\s*$/.exec(firstLine);
+
+				if (attributeMatch) {
+					try {
+						firstLine = firstLine.substr(
+							0,
+							attributeMatch.index + 1
+						);
+						Object.assign(
+							result.attributes,
+							JSON.parse(attributeMatch[1])
+						);
+					} catch (e) {
+						console.warn(
+							`Could not parse JSON attributes for passage, ignoring: ${attributeMatch[1]}`
+						);
+					}
+				}
+			}
+
+			// There may be a list of space-separated tags in square
+			// brackets at the end of the first line now.
+
+			const tagListMatch = /[^\\]\[(.*)\]\s*$/.exec(firstLine);
+
+			if (tagListMatch) {
+				result.attributes.tags = tagListMatch[1].split(/\s+/);
+				firstLine = firstLine.substr(0, tagListMatch.index + 1);
 
 				// Handle script and stylesheet tagged passages.
 
-				if (passage.attributes.tags.indexOf('stylesheet') !== -1) {
-					this.mergeStylesheet(passage.source);
+				if (result.attributes.tags.indexOf('stylesheet') !== -1) {
+					this.mergeStylesheet(result.source);
 				}
 
-				if (passage.attributes.tags.indexOf('script') !== -1) {
-					this.mergeJavaScript(passage.source);
+				if (result.attributes.tags.indexOf('script') !== -1) {
+					this.mergeJavaScript(result.source);
 				}
-			} else {
-				passage.attributes.name = headerText;
 			}
 
-			this.passages.push(passage);
+			result.attributes.name = firstLine.trim();
+
+			if (result.attributes.name === '') {
+				console.warn('Warning: a passage has no name.');
+			}
+
+			if (result.source === '') {
+				console.warn(
+					`Warning: the passage "${result.attributes.name}" has no source text.`
+				);
+			}
+
+			// There are certain specially-named passages in Twee v3.
+
+			if (tweeVersion >= 3) {
+				if (result.attributes.name === 'StoryTitle') {
+					this.attributes.name = result.source;
+				} else if (result.attributes.name === 'StoryData') {
+					try {
+						Object.assign(this, JSON.parse(result.source));
+					} catch (e) {
+						console.warn(
+							'Could not parse JSON source of StoryData passage.'
+						);
+					}
+				}
+			}
+
+			this.passages.push(result);
 		});
 	}
 

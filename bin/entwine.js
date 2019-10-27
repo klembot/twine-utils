@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const Story = require('../src/story');
-const StoryFormat = require('../src/story-format');
+const Story = require('../dist/story');
+const StoryFormat = require('../dist/story-format');
 const argv = require('yargs')
 	.usage('Usage: $0 <files to combine> [options]')
 	.alias('n', 'name')

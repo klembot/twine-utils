@@ -1,5 +1,6 @@
 /**
- * A single passage in a story.
+ * A single passage in a story. This does not have a loadTwee() method because
+ * loading Twee may have story-wide effects.
  */
 
 import cheerio from 'cheerio';

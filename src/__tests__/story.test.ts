@@ -9,6 +9,7 @@ const readFile = promisify(fs.readFile);
 
 describe('Story', () => {
 	let testTwee: string;
+	let testTwee3: string;
 	let testStoryHtml: string;
 
 	beforeAll(async () => {
@@ -19,6 +20,12 @@ describe('Story', () => {
 		testTwee = await readFile(path.join(__dirname, 'data/test-twee.txt'), {
 			encoding: 'utf8'
 		});
+		testTwee3 = await readFile(
+			path.join(__dirname, 'data/test-twee-v3.txt'),
+			{
+				encoding: 'utf8'
+			}
+		);
 	});
 
 	it('creates an empty object when constructed without options', () => {
@@ -77,25 +84,65 @@ describe('Story', () => {
 
 		// Have to do individual comparisons because these are instances of a class.
 
-		expect(test.passages.length).toBe(4);
+		expect(test.passages.length).toBe(5);
 		expect(test.passages[0].attributes.name).toBe('My First Passage');
 		expect(test.passages[0].attributes.tags).toBeUndefined();
 		expect(test.passages[0].source).toBe(
 			'It was a dark and stormy [[night]].'
 		);
 		expect(test.passages[1].attributes.name).toBe('night');
-		expect(test.passages[1].attributes.tags.length).toBe(1);
-		expect(test.passages[1].attributes.tags[0]).toBe('red');
+		expect(test.passages[1].attributes.tags).toEqual(['red']);
 		expect(test.passages[1].source).toBe('Ugh, so :: dark.');
 		expect(test.passages[2].attributes.name).toBe('not linked, but tagged');
-		expect(test.passages[2].attributes.tags.length).toBe(2);
-		expect(test.passages[2].attributes.tags[0]).toBe('sneaky');
-		expect(test.passages[2].attributes.tags[1]).toBe('and-hyphenated');
+		expect(test.passages[2].attributes.tags).toEqual([
+			'sneaky',
+			'and-hyphenated'
+		]);
 		expect(test.passages[2].source).toBe("You'd never see this normally.");
-		expect(test.passages[3].attributes.name).toBe('A long passage');
-		expect(test.passages[3].source).toBe(
+		expect(test.passages[3].attributes.name).toBe('a cramped');
+		expect(test.passages[3].attributes.tags).toEqual(['passage-with-tag']);
+		expect(test.passages[4].attributes.name).toBe('A long passage');
+		expect(test.passages[4].attributes.tags).toBeUndefined();
+		expect(test.passages[4].source).toBe(
 			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nisl tortor,\nultricies congue semper non, commodo vel dui. Donec sollicitudin turpis id nisi\ndictum fringilla. Integer congue, massa sed aliquet imperdiet, neque dolor\nscelerisque diam, quis congue elit massa a ex. Nunc iaculis lacinia sem id\nconvallis. Nam eget efficitur risus, et ullamcorper libero. Nam nec rhoncus\nurna, eu volutpat tortor. Donec vulputate nunc non ante volutpat sollicitudin.\nPhasellus at lorem in ex fringilla consectetur sed eu tellus. Sed feugiat\nsagittis ante, et tempus ligula aliquam et. Mauris vestibulum magna ac ante\naliquet aliquam. Cras tortor ligula, finibus eu rutrum eget, tristique vitae\nenim. Morbi nunc magna, pharetra nec ipsum sed, mollis fermentum orci.'
 		);
+	});
+
+	it('merges Twee version 3 source', () => {
+		const test = new Story();
+		const oldWarn = global.console.warn;
+
+		global.console.warn = jest.fn();
+
+		test.mergeTwee(testTwee3, 3);
+		expect(test.passages.length).toBe(5);
+		expect(test.passages[0].attributes.name).toBe('a name');
+		expect(test.passages[0].attributes.position).toBe('10,10');
+		expect(test.passages[0].attributes.tags).toEqual(['with', 'tags']);
+		expect(test.passages[0].source).toBe(
+			'This passage has position metadata.'
+		);
+		expect(test.passages[1].attributes.name).toBe('another name');
+		expect(test.passages[1].attributes.color).toEqual({
+			hue: 'red',
+			lightness: 0.5
+		});
+		expect(test.passages[1].attributes.tags).toBeUndefined();
+		expect(test.passages[1].source).toBe(
+			"This passage has nested metadata, which isn't part of the spec but should be parsed correctly."
+		);
+		expect(test.passages[2].attributes.name).toBe('a cramped');
+		expect(test.passages[2].attributes.position).toBe('10,10');
+		expect(test.passages[2].attributes.tags).toEqual(['tag']);
+		expect(test.passages[2].source).toBe('This is allowed.');
+		expect(test.passages[3].attributes.name).toBe('\\[a bracketed name\\]');
+		expect(test.passages[3].attributes.tags).toEqual(['with-a-tag']);
+		expect(test.passages[3].source).toBe('With text.');
+		expect(test.passages[4].attributes.name).toBe('a passage');
+		expect(test.passages[4].source).toBe('With other text.');
+		expect(global.console.warn).toBeCalledTimes(1); // warning about malformed JSON in last passage
+
+		global.console.warn = oldWarn;
 	});
 
 	it('retains the start passage when loading HTML', () => {
