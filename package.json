@@ -10,6 +10,7 @@
 	},
 	"main": "dist/index.js",
 	"bin": {
+		"entwee": "bin/entwee.js",
 		"entwine": "bin/entwine.js"
 	},
 	"scripts": {
