@@ -1,0 +1,14 @@
+:: a name [with tags] {"position": "10,10"}
+This passage has position metadata.
+
+:: another name {"color": {"hue": "red", "lightness": 0.5}}
+This passage has nested metadata, which isn't part of the spec but should be parsed correctly.
+
+:: a cramped[tag]{"position":"10,10"}
+This is allowed.
+
+:: \[a bracketed name\] [with-a-tag]
+With text.
+
+:: a passage {with malformed attributes}
+With other text.
