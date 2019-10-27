@@ -68,13 +68,17 @@ describe('Story', () => {
 
 		// Have to do individual comparisons because these are instances of a class.
 
-		expect(test.passages.length).toBe(2);
+		expect(test.passages.length).toBe(3);
 		expect(test.passages[0].attributes.name).toBe('Untitled Passage');
 		expect(test.passages[0].source).toBe(
 			'This is some text with "quotes" & other characters.\n\n[[1]]'
 		);
 		expect(test.passages[1].attributes.name).toBe('1');
 		expect(test.passages[1].source).toBe('This is another passage.');
+		expect(test.passages[2].attributes.name).toBe('HTML');
+		expect(test.passages[2].source).toBe(
+			'This is a passage <span>with an encoded tag</span>.'
+		);
 	});
 
 	it('merges Twee source', () => {
@@ -84,7 +88,7 @@ describe('Story', () => {
 
 		// Have to do individual comparisons because these are instances of a class.
 
-		expect(test.passages.length).toBe(5);
+		expect(test.passages.length).toBe(6);
 		expect(test.passages[0].attributes.name).toBe('My First Passage');
 		expect(test.passages[0].attributes.tags).toBeUndefined();
 		expect(test.passages[0].source).toBe(
@@ -105,6 +109,10 @@ describe('Story', () => {
 		expect(test.passages[4].attributes.tags).toBeUndefined();
 		expect(test.passages[4].source).toBe(
 			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nisl tortor,\nultricies congue semper non, commodo vel dui. Donec sollicitudin turpis id nisi\ndictum fringilla. Integer congue, massa sed aliquet imperdiet, neque dolor\nscelerisque diam, quis congue elit massa a ex. Nunc iaculis lacinia sem id\nconvallis. Nam eget efficitur risus, et ullamcorper libero. Nam nec rhoncus\nurna, eu volutpat tortor. Donec vulputate nunc non ante volutpat sollicitudin.\nPhasellus at lorem in ex fringilla consectetur sed eu tellus. Sed feugiat\nsagittis ante, et tempus ligula aliquam et. Mauris vestibulum magna ac ante\naliquet aliquam. Cras tortor ligula, finibus eu rutrum eget, tristique vitae\nenim. Morbi nunc magna, pharetra nec ipsum sed, mollis fermentum orci.'
+		);
+		expect(test.passages[5].attributes.name).toBe('A passage with HTML');
+		expect(test.passages[5].source).toBe(
+			"It's a <span>word</span> in a passage."
 		);
 	});
 
@@ -194,7 +202,7 @@ describe('Story', () => {
 
 		expect($('tw-storydata').length).toBe(1);
 		expect($('tw-storydata').attr('name')).toBe('Test');
-		expect($('tw-passagedata').length).toBe(2);
+		expect($('tw-passagedata').length).toBe(3);
 		expect(
 			$('tw-passagedata')
 				.eq(0)
@@ -208,8 +216,23 @@ describe('Story', () => {
 		expect(
 			$('tw-passagedata')
 				.eq(1)
+				.attr('name')
+		).toBe('1');
+		expect(
+			$('tw-passagedata')
+				.eq(1)
 				.text()
 		).toBe('This is another passage.');
+		expect(
+			$('tw-passagedata')
+				.eq(2)
+				.attr('name')
+		).toBe('HTML');
+		expect(
+			$('tw-passagedata')
+				.eq(2)
+				.text()
+		).toBe('This is a passage <span>with an encoded tag</span>.');
 	});
 
 	it('publishes an HTML fragment with ordered passage IDs', () => {
@@ -265,7 +288,7 @@ describe('Story', () => {
 
 		test.loadHtml(testStoryHtml);
 		expect(test.toTwee()).toBe(
-			':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1 {"position":"247,286"}\nThis is another passage.\n\n:: StoryTitle\nTest\n\n:: StoryData\n{\n  "startnode": "1",\n  "creator": "Twine",\n  "creator-version": "2.0.11",\n  "ifid": "3AE380EE-4B34-4D0D-A8E2-BE624EB271C9",\n  "format": "SugarCube",\n  "options": ""\n}'
+			':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1 {"position":"247,286"}\nThis is another passage.\n\n:: HTML {"position":"400,400"}\nThis is a passage <span>with an encoded tag</span>.\n\n:: StoryTitle\nTest\n\n:: StoryData\n{\n  "startnode": "1",\n  "creator": "Twine",\n  "creator-version": "2.0.11",\n  "ifid": "3AE380EE-4B34-4D0D-A8E2-BE624EB271C9",\n  "format": "SugarCube",\n  "options": ""\n}'
 		);
 	});
 
@@ -274,7 +297,7 @@ describe('Story', () => {
 
 		test.loadHtml(testStoryHtml);
 		expect(test.toTwee(1)).toBe(
-			':: Untitled Passage [foo]\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1\nThis is another passage.'
+			':: Untitled Passage [foo]\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1\nThis is another passage.\n\n:: HTML\nThis is a passage <span>with an encoded tag</span>.'
 		);
 	});
 });

@@ -20,3 +20,6 @@ Phasellus at lorem in ex fringilla consectetur sed eu tellus. Sed feugiat
 sagittis ante, et tempus ligula aliquam et. Mauris vestibulum magna ac ante
 aliquet aliquam. Cras tortor ligula, finibus eu rutrum eget, tristique vitae
 enim. Morbi nunc magna, pharetra nec ipsum sed, mollis fermentum orci.
+
+:: A passage with HTML
+It's a <span>word</span> in a passage.
