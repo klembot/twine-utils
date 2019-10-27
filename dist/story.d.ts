@@ -41,8 +41,11 @@ export default class Story {
     mergeStylesheet(source: string): this;
     /**
      * Merges Twee source in with this story.
+     * @param source Twee source
+     * @param tweeVersion version of Twee to use
+     * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
      */
-    mergeTwee(source: string): void;
+    mergeTwee(source: string, tweeVersion?: number): void;
     /**
      * Sets the start attribute to a named passage.
      */
@@ -52,5 +55,13 @@ export default class Story {
      * StoryFormat to bind it as a complete HTML page.
      */
     toHtml(): any;
+    /**
+     * Returns Twee source code for this story. *Warning:* if the Twee version
+     * specified is less than 3, this is a lossy conversion.
+     * @param tweeVersion version of Twee to use
+     * @param passageSpacer text to output between passages, e.g. one or more newlines
+     * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
+     */
+    toTwee(tweeVersion?: number, passageSpacer?: string): string;
 }
 export {};

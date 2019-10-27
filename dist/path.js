@@ -47,4 +47,4 @@ function storyDirectorySync() {
     }
     return path_1.default.join(result, storiesDirectory);
 }
-exports.default = storyDirectorySync;
+exports.storyDirectorySync = storyDirectorySync;

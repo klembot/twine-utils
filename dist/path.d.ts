@@ -6,4 +6,4 @@
  * Returns an absolute path to the user's story directory. If it can't be found,
  * this throws an error.
  */
-export default function storyDirectorySync(): string;
+export declare function storyDirectorySync(): string;
