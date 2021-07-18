@@ -4,7 +4,7 @@
  */
 
 import cheerio from 'cheerio';
-import {AllHtmlEntities} from 'html-entities';
+import {encode} from 'html-entities';
 
 interface PassageOptions {
 	attributes?: {[key: string]: any};
@@ -61,7 +61,7 @@ export default class Passage {
 
 		output('tw-passagedata')
 			.attr(this.attributes)
-			.html(AllHtmlEntities.encode(this.source));
+			.html(encode(this.source));
 
 		if (pid || this.attributes.pid) {
 			output('tw-passagedata').attr('pid', pid || this.attributes.pid);
