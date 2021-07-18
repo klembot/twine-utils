@@ -44,7 +44,7 @@ class Passage {
         const output = cheerio_1.default.load('<tw-passagedata></tw-passagedata>');
         output('tw-passagedata')
             .attr(this.attributes)
-            .html(html_entities_1.AllHtmlEntities.encode(this.source));
+            .html(html_entities_1.encode(this.source));
         if (pid || this.attributes.pid) {
             output('tw-passagedata').attr('pid', pid || this.attributes.pid);
         }

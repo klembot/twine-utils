@@ -5,6 +5,7 @@
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"outDir": "dist",
+		"skipLibCheck": true,
 		"target": "es6"
 	},
 	"exclude": ["node_modules", "**/__tests__/*"],

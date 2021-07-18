@@ -1,32 +1,30 @@
-name: Node CI
+name: Publish to NPM
 
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      - main
 
 jobs:
-  build:
-
+  publish:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
-
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, test, and lint
+    - name: install
       # mkdir is so that tests related to Twine stories path pass
       run: |
         mkdir -p ~/Documents/Twine/Stories
         npm ci
-        npm run build
-        npm run lint:noisy
-        npm test
-      env:
-        CI: true
+    - name: build
+      run: npm run build
+    - name: lint
+      run: npm run lint:noisy
+    - name: test
+      run: npm test
+    - uses: JS-DevTools/npm-publish@v1
+      with:
+        token: ${{ secrets.NPM_TOKEN }}
