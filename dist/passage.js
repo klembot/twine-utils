@@ -1,14 +1,14 @@
 "use strict";
-/**
- * A single passage in a story. This does not have a loadTwee() method because
- * loading Twee may have story-wide effects.
- */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cheerio_1 = __importDefault(require("cheerio"));
 const html_entities_1 = require("html-entities");
+/**
+ * A single passage in a story. This does not have a loadTwee() method because
+ * loading Twee may have story-wide effects.
+ */
 class Passage {
     constructor(props = {}) {
         this.attributes = props.attributes || {};
@@ -22,12 +22,11 @@ class Passage {
         const $ = cheerio_1.default.load(src);
         const $passage = $('tw-passagedata');
         if ($passage.length === 0) {
-            console.error('Warning: there are no passages in this HTML ' + 'source code.');
+            console.warn('Warning: there are no passages in this HTML source code.');
             return this;
         }
         else if ($passage.length > 1) {
-            console.error('Warning: there appears to be more than one ' +
-                'passage in this HTML source code. Using the first.');
+            console.warn('Warning: there appears to be more than one passage in this HTML source code. Using the first.');
         }
         this.attributes = $passage[0].attribs;
         if (this.attributes.tags) {

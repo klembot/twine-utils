@@ -1,18 +1,17 @@
-/**
- * A single passage in a story. This does not have a loadTwee() method because
- * loading Twee may have story-wide effects.
- */
-
 import cheerio from 'cheerio';
 import {encode} from 'html-entities';
 
 interface PassageOptions {
-	attributes?: {[key: string]: any};
+	attributes?: Record<string, unknown>;
 	source?: string;
 }
 
+/**
+ * A single passage in a story. This does not have a loadTwee() method because
+ * loading Twee may have story-wide effects.
+ */
 export default class Passage {
-	attributes: {[key: string]: any};
+	attributes: Record<string, unknown>;
 	source: string;
 
 	constructor(props: PassageOptions = {}) {
@@ -24,27 +23,27 @@ export default class Passage {
 	 *  Loads the contents of an HTML fragment, replacing properties of this
 	 *  object.
 	 */
-
 	loadHtml(src: string) {
 		const $ = cheerio.load(src);
 		const $passage = $('tw-passagedata');
 
 		if ($passage.length === 0) {
-			console.error(
-				'Warning: there are no passages in this HTML ' + 'source code.'
+			console.warn(
+				'Warning: there are no passages in this HTML source code.'
 			);
 			return this;
 		} else if ($passage.length > 1) {
-			console.error(
-				'Warning: there appears to be more than one ' +
-					'passage in this HTML source code. Using the first.'
+			console.warn(
+				'Warning: there appears to be more than one passage in this HTML source code. Using the first.'
 			);
 		}
 
-		this.attributes = $passage[0].attribs;
+		this.attributes = ($passage[0] as cheerio.TagElement).attribs;
 
-		if (this.attributes.tags) {
-			this.attributes.tags = this.attributes.tags.split(' ');
+		if (typeof this.attributes.tags === 'string') {
+			this.attributes.tags = this.attributes.tags
+				.split(' ')
+				.filter(s => s.trim() !== '');
 		}
 
 		this.source = $passage.eq(0).text();
@@ -55,7 +54,6 @@ export default class Passage {
 	 * Returns an HTML fragment for this passage, optionally setting the passage
 	 * id (or pid) manually.
 	 */
-
 	toHtml(pid?: number) {
 		const output = cheerio.load('<tw-passagedata></tw-passagedata>');
 
@@ -63,8 +61,11 @@ export default class Passage {
 			.attr(this.attributes)
 			.html(encode(this.source));
 
-		if (pid || this.attributes.pid) {
-			output('tw-passagedata').attr('pid', pid || this.attributes.pid);
+		if (pid || typeof this.attributes.pid === 'string') {
+			output('tw-passagedata').attr(
+				'pid',
+				pid ? pid.toString() : (this.attributes.pid as string)
+			);
 		}
 
 		return output.html();
@@ -75,11 +76,13 @@ export default class Passage {
 	 * specified is less than 3, this is a lossy conversion.
 	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
 	 */
-
 	toTwee(tweeVersion = 3) {
 		let output = `:: ${this.attributes.name}`;
 
-		if (this.attributes.tags) {
+		if (
+			Array.isArray(this.attributes.tags) &&
+			this.attributes.tags.length > 0
+		) {
 			output += ` [${this.attributes.tags.join(' ')}]`;
 		}
 

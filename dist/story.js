@@ -1,23 +1,24 @@
 "use strict";
-/**
- * Represents a Twine story.
- */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cheerio_1 = __importDefault(require("cheerio"));
 const passage_1 = __importDefault(require("./passage"));
+/**
+ * A Twine story.
+ */
 class Story {
     constructor(props = {}) {
-        this.attributes = props.attributes || {};
+        var _a, _b, _c, _d;
+        this.attributes = (_a = props.attributes) !== null && _a !== void 0 ? _a : {};
         // Set ourselves as the story creator by default.
         if (this.attributes.creator === undefined) {
             this.attributes.creator = 'twine-utils';
         }
-        this.passages = props.passages || [];
-        this.javascript = props.javascript || '';
-        this.stylesheet = props.stylesheet || '';
+        this.passages = (_b = props.passages) !== null && _b !== void 0 ? _b : [];
+        this.javascript = (_c = props.javascript) !== null && _c !== void 0 ? _c : '';
+        this.stylesheet = (_d = props.stylesheet) !== null && _d !== void 0 ? _d : '';
     }
     /**
      * Loads the contents of an HTML file, replacing properties of this story.
@@ -26,11 +27,11 @@ class Story {
         const $ = cheerio_1.default.load(source);
         const $story = $('tw-storydata');
         if ($story.length === 0) {
-            console.error('Warning: there are no stories in this HTML source code.');
+            console.warn('Warning: there are no stories in this HTML source code.');
             return this;
         }
         else if ($story.length > 1) {
-            console.error('Warning: there appears to be more than one story in this HTML source code. Using the first.');
+            console.warn('Warning: there appears to be more than one story in this HTML source code. Using the first.');
         }
         this.attributes = Object.assign(Object.assign({}, $story[0].attribs), { hidden: undefined });
         this.passages = [];
@@ -76,9 +77,7 @@ class Story {
      * A convenience method that merges the contents of a story in HTML form.
      */
     mergeHtml(source) {
-        var toMerge = new Story().loadHtml(source);
-        this.mergeStory(toMerge);
-        return this;
+        return this.mergeStory(new Story().loadHtml(source));
     }
     /**
      * Merges JavaScript source in with this story.
@@ -187,7 +186,7 @@ class Story {
         const output = cheerio_1.default.load('<tw-storydata></tw-storydata>');
         output('tw-storydata')
             .attr(this.attributes)
-            .attr('startnode', this.passages.indexOf(this.startPassage) + 1)
+            .attr('startnode', (this.passages.indexOf(this.startPassage) + 1).toString())
             .html(this.passages.reduce((result, passage, index) => {
             result += passage.toHtml(index + 1);
             return result;
