@@ -1,13 +1,11 @@
+interface PassageOptions {
+    attributes?: Record<string, any>;
+    source?: string;
+}
 /**
  * A single passage in a story. This does not have a loadTwee() method because
  * loading Twee may have story-wide effects.
  */
-interface PassageOptions {
-    attributes?: {
-        [key: string]: any;
-    };
-    source?: string;
-}
 export default class Passage {
     attributes: {
         [key: string]: any;
@@ -23,7 +21,7 @@ export default class Passage {
      * Returns an HTML fragment for this passage, optionally setting the passage
      * id (or pid) manually.
      */
-    toHtml(pid?: number): any;
+    toHtml(pid?: number): string;
     /**
      * Returns Twee source code for this story. *Warning:* if the Twee version
      * specified is less than 3, this is a lossy conversion.

@@ -1,15 +1,13 @@
-/**
- * Represents a Twine story.
- */
 import Passage from './passage';
 interface StoryOptions {
-    attributes?: {
-        [key: string]: any;
-    };
+    attributes?: Record<string, any>;
     javascript?: string;
     stylesheet?: string;
     passages?: Passage[];
 }
+/**
+ * A Twine story.
+ */
 export default class Story {
     attributes: {
         [key: string]: any;
@@ -54,7 +52,7 @@ export default class Story {
      * Returns an HTML fragment for this story. Normally, you'd use a
      * StoryFormat to bind it as a complete HTML page.
      */
-    toHtml(): any;
+    toHtml(): string;
     /**
      * Returns Twee source code for this story. *Warning:* if the Twee version
      * specified is less than 3, this is a lossy conversion.

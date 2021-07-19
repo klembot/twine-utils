@@ -1,58 +1,55 @@
-/**
- * Represents a Twine story.
- */
-
 import cheerio from 'cheerio';
 import Passage from './passage';
 
 interface StoryOptions {
-	attributes?: {[key: string]: any};
+	attributes?: Record<string, unknown>;
 	javascript?: string;
 	stylesheet?: string;
 	passages?: Passage[];
 }
 
+/**
+ * A Twine story.
+ */
 export default class Story {
-	attributes: {[key: string]: any};
+	attributes: Record<string, unknown>;
 	javascript: string;
 	startPassage: Passage;
 	stylesheet: string;
 	passages: Passage[];
 
 	constructor(props: StoryOptions = {}) {
-		this.attributes = props.attributes || {};
+		this.attributes = props.attributes ?? {};
 
 		// Set ourselves as the story creator by default.
-
-		if (this.attributes.creator === undefined) {
-			this.attributes.creator = 'twine-utils';
-		}
-
-		this.passages = props.passages || [];
-		this.javascript = props.javascript || '';
-		this.stylesheet = props.stylesheet || '';
+		this.attributes.creator ??= 'twine-utils';
+		this.passages = props.passages ?? [];
+		this.javascript = props.javascript ?? '';
+		this.stylesheet = props.stylesheet ?? '';
 	}
 
 	/**
 	 * Loads the contents of an HTML file, replacing properties of this story.
 	 */
-
 	loadHtml(source: string) {
 		const $ = cheerio.load(source);
 		const $story = $('tw-storydata');
 
 		if ($story.length === 0) {
-			console.error(
+			console.warn(
 				'Warning: there are no stories in this HTML source code.'
 			);
 			return this;
 		} else if ($story.length > 1) {
-			console.error(
+			console.warn(
 				'Warning: there appears to be more than one story in this HTML source code. Using the first.'
 			);
 		}
 
-		this.attributes = {...$story[0].attribs, hidden: undefined};
+		this.attributes = {
+			...($story[0] as cheerio.TagElement).attribs,
+			hidden: undefined
+		};
 		this.passages = [];
 
 		$story.find('tw-passagedata').each((index, el) => {
@@ -76,7 +73,6 @@ export default class Story {
 	/**
 	 * Merges the contents of another story object with this one.
 	 */
-
 	mergeStory(story: Story) {
 		if (story.passages.length !== 0) {
 			this.passages = this.passages.concat(story.passages);
@@ -110,17 +106,13 @@ export default class Story {
 	/**
 	 * A convenience method that merges the contents of a story in HTML form.
 	 */
-
 	mergeHtml(source: string) {
-		var toMerge = new Story().loadHtml(source);
-		this.mergeStory(toMerge);
-		return this;
+		return this.mergeStory(new Story().loadHtml(source));
 	}
 
 	/**
 	 * Merges JavaScript source in with this story.
 	 */
-
 	mergeJavaScript(source: string) {
 		this.javascript += '\n' + source;
 		return this;
@@ -129,7 +121,6 @@ export default class Story {
 	/**
 	 * Merges CSS source in with this story.
 	 */
-
 	mergeStylesheet(source: string) {
 		this.stylesheet += '\n' + source;
 		return this;
@@ -141,7 +132,6 @@ export default class Story {
 	 * @param tweeVersion version of Twee to use
 	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
 	 */
-
 	mergeTwee(source: string, tweeVersion: number = 1) {
 		source.split(/^::/m).forEach(src => {
 			if (src.trim() === '') {
@@ -193,16 +183,18 @@ export default class Story {
 			const tagListMatch = /[^\\]\[(.*)\]\s*$/.exec(firstLine);
 
 			if (tagListMatch) {
-				result.attributes.tags = tagListMatch[1].split(/\s+/);
+				const tags = tagListMatch[1].split(/\s+/);
+
+				result.attributes.tags = tags;
 				firstLine = firstLine.substr(0, tagListMatch.index + 1);
 
 				// Handle script and stylesheet tagged passages.
 
-				if (result.attributes.tags.indexOf('stylesheet') !== -1) {
+				if (tags.indexOf('stylesheet') !== -1) {
 					this.mergeStylesheet(result.source);
 				}
 
-				if (result.attributes.tags.indexOf('script') !== -1) {
+				if (tags.indexOf('script') !== -1) {
 					this.mergeJavaScript(result.source);
 				}
 			}
@@ -242,7 +234,6 @@ export default class Story {
 	/**
 	 * Sets the start attribute to a named passage.
 	 */
-
 	setStartByName(name: string) {
 		const target = this.passages.find(
 			passage => passage.attributes.name === name
@@ -259,13 +250,15 @@ export default class Story {
 	 * Returns an HTML fragment for this story. Normally, you'd use a
 	 * StoryFormat to bind it as a complete HTML page.
 	 */
-
 	toHtml() {
 		const output = cheerio.load('<tw-storydata></tw-storydata>');
 
 		output('tw-storydata')
 			.attr(this.attributes)
-			.attr('startnode', this.passages.indexOf(this.startPassage) + 1)
+			.attr(
+				'startnode',
+				(this.passages.indexOf(this.startPassage) + 1).toString()
+			)
 			.html(
 				this.passages.reduce((result, passage, index) => {
 					result += passage.toHtml(index + 1);
@@ -281,7 +274,6 @@ export default class Story {
 
 		output('#twine-user-script').text(this.javascript);
 		output('#twine-user-stylesheet').text(this.stylesheet);
-
 		return output.html();
 	}
 
@@ -292,7 +284,6 @@ export default class Story {
 	 * @param passageSpacer text to output between passages, e.g. one or more newlines
 	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
 	 */
-
 	toTwee(tweeVersion = 3, passageSpacer = '\n\n') {
 		let output = this.passages.reduce((result, current) => {
 			return result + current.toTwee(tweeVersion) + passageSpacer;

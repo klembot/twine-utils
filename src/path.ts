@@ -15,7 +15,6 @@ const storyDirectoryNames = ['Stories'];
  * Returns an absolute path to the user's story directory. If it can't be found,
  * this throws an error.
  */
-
 export function storyDirectorySync() {
 	let result = osenv.home();
 	const testDir = path => {

@@ -26,16 +26,14 @@ describe('StoryFormat', () => {
 	it('creates an empty object when constructed without options', () => {
 		const empty = new StoryFormat();
 
-		expect(empty.loaded).toBe(false);
+		expect(empty.attributes).toEqual({});
 	});
 
-	it('loads a story format from a file', () => {
+	it('loads a story format from a file', async () => {
 		const harlowe = new StoryFormat();
 
-		harlowe.load(harloweSrc);
-		expect(harlowe.loaded).toBe(true);
+		await harlowe.load(harloweSrc);
 		expect(harlowe.attributes.name).toBe('Harlowe');
-		expect(typeof harlowe.rawSource).toBe('string');
 		expect(typeof harlowe.attributes.source).toBe('string');
 	});
 
@@ -54,7 +52,7 @@ describe('StoryFormat', () => {
 		expect(output.indexOf('<tw-passagedata')).not.toBe(-1);
 	});
 
-	it('properly encodes HTML while publishing', function() {
+	it('properly encodes HTML while publishing', () => {
 		const story = new Story();
 		const test = new StoryFormat();
 
@@ -64,5 +62,26 @@ describe('StoryFormat', () => {
 		expect(test.publish(story)).toBe(
 			'<tw-storydata creator="twine-utils" startnode="0"><tw-passagedata pid="1">&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script></tw-storydata>'
 		);
+	});
+
+	describe('toJSONP()', () => {
+		it('returns a JSONP representation of attributes', () => {
+			const format = new StoryFormat();
+
+			format.attributes.author = 'test-author';
+			format.attributes.name = 'test-name';
+			expect(format.toJSONP()).toBe(
+				'window.storyFormat({"author":"test-author","name":"test-name"})'
+			);
+		});
+
+		it('transforms function attributes to strings', () => {
+			const format = new StoryFormat();
+
+			format.attributes.test = () => console.log('hello world');
+			expect(format.toJSONP()).toBe(
+				'window.storyFormat({"test":"() => console.log(\'hello world\')"})'
+			);
+		});
 	});
 });
