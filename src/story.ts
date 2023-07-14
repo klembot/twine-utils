@@ -28,7 +28,7 @@ export default class Story {
   /**
    * Creates an instance from HTML source.
    */
-  static fromHtml(source: string, silent = false) {
+  static fromHTML(source: string, silent = false) {
     const root = parse(source);
     const storyEls = root.querySelectorAll('tw-storydata');
     const result = new Story();
@@ -51,7 +51,7 @@ export default class Story {
     };
 
     for (const passageEl of storyEls[0].querySelectorAll('tw-passagedata')) {
-      const passage = Passage.fromHtml(passageEl.outerHTML, silent);
+      const passage = Passage.fromHTML(passageEl.outerHTML, silent);
 
       result.passages.push(passage);
 
@@ -247,7 +247,7 @@ export default class Story {
    * Returns an HTML fragment for this story. Normally, you'd use a
    * StoryFormat to bind it as a complete HTML page.
    */
-  toHtml() {
+  toHTML() {
     const root = parse('<div><tw-storydata></tw-storydata></div>');
     const output = root.querySelector('tw-storydata');
 
@@ -267,7 +267,7 @@ export default class Story {
     );
 
     output.innerHTML = this.passages.reduce((result, passage, index) => {
-      result += passage.toHtml(index + 1);
+      result += passage.toHTML(index + 1);
       return result;
     }, '');
 

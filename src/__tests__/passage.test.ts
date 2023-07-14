@@ -25,7 +25,7 @@ describe('Passage', () => {
 	});
 
 	it('loads contents from HTML', () => {
-    const test = Passage.fromHtml(testPassageHtml);
+    const test = Passage.fromHTML(testPassageHtml);
 
     expect(test.source.length > 0).toBe(true);
     expect(test.attributes.name).toBe('Untitled Passage');
@@ -33,16 +33,16 @@ describe('Passage', () => {
   });
 
   it('publishes an HTML fragment', () => {
-    const test = Passage.fromHtml(testPassageHtml);
+    const test = Passage.fromHTML(testPassageHtml);
 
-    expect(test.toHtml().trim()).toBe(testPassageHtml.trim());
+    expect(test.toHTML().trim()).toBe(testPassageHtml.trim());
   });
 
   it('encodes HTML entities in attributes', () => {
     const test = new Passage();
 
     test.attributes.encoded = '"&<><br>';
-    expect(test.toHtml()).toBe(
+    expect(test.toHTML()).toBe(
       '<tw-passagedata encoded="&quot;&amp;&lt;&gt;&lt;br&gt;"></tw-passagedata>'
     );
   });
@@ -51,13 +51,13 @@ describe('Passage', () => {
     const test = new Passage();
     test.source = '"&<><br>';
 
-    expect(test.toHtml()).toBe(
+    expect(test.toHTML()).toBe(
       '<tw-passagedata>&quot;&amp;&lt;&gt;&lt;br&gt;</tw-passagedata>'
     );
   });
 
   it('publishes Twee source code', () => {
-    const test = Passage.fromHtml(testPassageHtml);
+    const test = Passage.fromHTML(testPassageHtml);
 
     expect(test.toTwee()).toBe(
       ':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text.\n\n[[1]]'
@@ -65,7 +65,7 @@ describe('Passage', () => {
   });
 
   it('publishes Twee source code without attributes when version < 3', () => {
-    const test = Passage.fromHtml(testPassageHtml);
+    const test = Passage.fromHTML(testPassageHtml);
 
     expect(test.toTwee(1)).toBe(
       ':: Untitled Passage [foo]\nThis is some text.\n\n[[1]]'

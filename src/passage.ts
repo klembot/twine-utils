@@ -18,7 +18,7 @@ export default class Passage {
   /**
    * Creates an instance from an HTML fragment.
    */
-  static fromHtml(source: string, silent = false) {
+  static fromHTML(source: string, silent = false) {
     const root = parse(source);
 
     const passageEls = root.querySelectorAll('tw-passagedata');
@@ -53,7 +53,7 @@ export default class Passage {
    * Returns an HTML fragment for this passage, optionally setting the passage
    * id (or pid) manually.
    */
-  toHtml(pid?: number) {
+  toHTML(pid?: number) {
     const root = parse('<div><tw-passagedata></tw-passagedata></div>');
     const output = root.querySelector('tw-passagedata');
 

@@ -32,7 +32,7 @@ class StoryFormat {
     publish(story) {
         let output = this.attributes.source;
         output = output.replace(/{{STORY_NAME}}/g, story.attributes.name);
-        output = output.replace(/{{STORY_DATA}}/g, story.toHtml());
+        output = output.replace(/{{STORY_DATA}}/g, story.toHTML());
         return output;
     }
 }

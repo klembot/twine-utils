@@ -41,7 +41,7 @@ describe('StoryFormat', () => {
 
 	it('publishes stories', () => {
 		const harlowe = new StoryFormat();
-		const testStory = Story.fromHtml(testStoryHtml);
+		const testStory = Story.fromHTML(testStoryHtml);
 
     harlowe.load(harloweSrc);
 
