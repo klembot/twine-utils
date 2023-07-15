@@ -1,19 +1,10 @@
-"use strict";
+import { decode, encode } from 'html-entities';
+import parse from 'node-html-parser';
 /**
- * A single passage in a story. This does not have a loadTwee() method because
+ * A single passage in a story. This does not have a fromTwee() method because
  * loading Twee may have story-wide effects.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const html_entities_1 = require("html-entities");
-const node_html_parser_1 = __importDefault(require("node-html-parser"));
-/**
- * A single passage in a story. This does not have a loadTwee() method because
- * loading Twee may have story-wide effects.
- */
-class Passage {
+export default class Passage {
     constructor(props = {}) {
         var _a, _b;
         this.attributes = (_a = props.attributes) !== null && _a !== void 0 ? _a : {};
@@ -23,7 +14,7 @@ class Passage {
      * Creates an instance from an HTML fragment.
      */
     static fromHTML(source, silent = false) {
-        const root = (0, node_html_parser_1.default)(source);
+        const root = parse(source);
         const passageEls = root.querySelectorAll('tw-passagedata');
         const result = new Passage();
         if (passageEls.length === 0) {
@@ -41,7 +32,7 @@ class Passage {
                 .split(' ')
                 .filter(s => s.trim() !== '');
         }
-        result.source = (0, html_entities_1.decode)(passageEls[0].innerHTML);
+        result.source = decode(passageEls[0].innerHTML);
         return result;
     }
     /**
@@ -49,12 +40,12 @@ class Passage {
      * id (or pid) manually.
      */
     toHTML(pid) {
-        const root = (0, node_html_parser_1.default)('<div><tw-passagedata></tw-passagedata></div>');
+        const root = parse('<div><tw-passagedata></tw-passagedata></div>');
         const output = root.querySelector('tw-passagedata');
         for (const attrib in this.attributes) {
-            output.setAttribute(attrib, (0, html_entities_1.encode)(this.attributes[attrib].toString()));
+            output.setAttribute(attrib, encode(this.attributes[attrib].toString()));
         }
-        output.innerHTML = (0, html_entities_1.encode)(this.source);
+        output.innerHTML = encode(this.source);
         if (pid || typeof this.attributes.pid === 'string') {
             output.setAttribute('pid', pid ? pid.toString() : this.attributes.pid);
         }
@@ -80,4 +71,3 @@ class Passage {
         return output + `\n${this.source}`;
     }
 }
-exports.default = Passage;

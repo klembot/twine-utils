@@ -17,49 +17,49 @@ const storyDirectoryNames = ['Stories'];
  */
 
 export function storyDirectorySync() {
-	let result = osenv.home();
-	const testDir = path => {
-		try {
-			fs.accessSync(path);
-			return true;
-		} catch (e) {
-			return false;
-		}
-	};
+  let result = osenv.home();
+  const testDir = path => {
+    try {
+      fs.accessSync(path);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
 
-	// Find the documents directory.
+  // Find the documents directory.
 
-	const docDirectory = documentDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
+  const docDirectory = documentDirectoryNames.find(dir =>
+    testDir(path.join(result, dir))
+  );
 
-	if (!docDirectory) {
-		throw new Error('Could not find your documents directory');
-	}
+  if (!docDirectory) {
+    throw new Error('Could not find your documents directory');
+  }
 
-	result = path.join(result, docDirectory);
+  result = path.join(result, docDirectory);
 
-	// Find the Twine directory.
+  // Find the Twine directory.
 
-	const twineDirectory = twineDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
+  const twineDirectory = twineDirectoryNames.find(dir =>
+    testDir(path.join(result, dir))
+  );
 
-	if (!twineDirectory) {
-		throw new Error('Could not find your Twine directory');
-	}
+  if (!twineDirectory) {
+    throw new Error('Could not find your Twine directory');
+  }
 
-	result = path.join(result, twineDirectory);
+  result = path.join(result, twineDirectory);
 
-	// Finally, find the Stories directory.
+  // Finally, find the Stories directory.
 
-	const storiesDirectory = storyDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
+  const storiesDirectory = storyDirectoryNames.find(dir =>
+    testDir(path.join(result, dir))
+  );
 
-	if (!storiesDirectory) {
-		throw new Error('Could not find your Stories directory');
-	}
+  if (!storiesDirectory) {
+    throw new Error('Could not find your Stories directory');
+  }
 
-	return path.join(result, storiesDirectory);
+  return path.join(result, storiesDirectory);
 }

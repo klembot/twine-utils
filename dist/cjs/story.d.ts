@@ -2,7 +2,7 @@
  * Represents a Twine story.
  */
 import Passage from './passage';
-interface StoryOptions {
+export interface StoryOptions {
     attributes?: Record<string, unknown>;
     javascript?: string;
     stylesheet?: string;
@@ -56,4 +56,3 @@ export default class Story {
      */
     toTwee(tweeVersion?: number, passageSpacer?: string): string;
 }
-export {};

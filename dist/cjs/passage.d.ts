@@ -1,9 +1,9 @@
-interface PassageOptions {
+export interface PassageOptions {
     attributes?: Record<string, unknown>;
     source?: string;
 }
 /**
- * A single passage in a story. This does not have a loadTwee() method because
+ * A single passage in a story. This does not have a fromTwee() method because
  * loading Twee may have story-wide effects.
  */
 interface PassageOptions {
@@ -32,4 +32,3 @@ export default class Passage {
      */
     toTwee(tweeVersion?: number): string;
 }
-export {};
