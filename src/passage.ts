@@ -1,11 +1,15 @@
 import {decode, encode} from 'html-entities';
 import parse from 'node-html-parser';
 
-interface PassageOptions {
-	attributes?: {[key: string]: any};
-	source?: string;
+export interface PassageOptions {
+  attributes?: Record<string, unknown>;
+  source?: string;
 }
 
+/**
+ * A single passage in a story. This does not have a fromTwee() method because
+ * loading Twee may have story-wide effects.
+ */
 export default class Passage {
   attributes: Record<string, unknown>;
   source: string;

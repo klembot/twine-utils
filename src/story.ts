@@ -1,7 +1,7 @@
 import parse from 'node-html-parser';
 import Passage from './passage';
 
-interface StoryOptions {
+export interface StoryOptions {
   attributes?: Record<string, unknown>;
   javascript?: string;
   stylesheet?: string;

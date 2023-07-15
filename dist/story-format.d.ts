@@ -3,19 +3,19 @@
  */
 import Story from './story';
 export default class StoryFormat {
-    attributes: {
-        [key: string]: any;
-    };
-    loaded: boolean;
-    rawSource: string;
+    attributes?: Record<string, unknown>;
     constructor(rawSource?: string);
     /**
      * Create the `attributes` property, which contains the parsed version of
      * the format's properties.
      */
-    load(rawSource: string): this;
+    load(rawSource: string): Promise<void>;
     /**
      * Returns HTML for a story bound to this format.
      */
-    publish(story: Story): any;
+    publish(story: Story): string;
+    /**
+     * Returns a JSONP representation of the story format's attributes.
+     */
+    toJSONP(callbackName?: string): string;
 }
