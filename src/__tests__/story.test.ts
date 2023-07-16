@@ -1,11 +1,8 @@
-import fs from 'fs';
+import {readFile} from 'fs/promises';
 import path from 'path';
-import {promisify} from 'util';
-import Passage from '../passage';
-import Story from '../story';
+import {Passage} from '../passage';
+import {Story} from '../story';
 import parse from 'node-html-parser';
-
-const readFile = promisify(fs.readFile);
 
 describe('Story', () => {
   let testTwee: string;

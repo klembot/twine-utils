@@ -1,54 +1,82 @@
+import {Story} from './story';
+
+interface WindowWithFormatLoader {
+  storyFormat: (attributes: Record<string, unknown>) => void;
+}
+
 /**
- * Represents a story format.
+ * A story format, used to publish a Twine story to playable HTML.
  */
+export class StoryFormat {
+  attributes?: Record<string, unknown>;
 
-import Story from './story';
+  constructor(rawSource?: string) {
+    this.attributes = {};
 
-export default class StoryFormat {
-	attributes: {[key: string]: any};
-	loaded: boolean;
-	rawSource: string;
+    if (rawSource) {
+      this.load(rawSource);
+    }
+  }
 
-	constructor(rawSource?: string) {
-		this.loaded = false;
+  /**
+   * Creates the `attributes` property, which contains the parsed version of the
+   * format's properties, from a JSONP-formatted string.
+   */
+  load(rawSource: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const looseGlobal = global as any;
+      const oldWindow = looseGlobal.window;
 
-		if (rawSource) {
-			this.load(rawSource);
-		}
-	}
+      if (oldWindow?.storyFormat) {
+        reject(
+          new Error(
+            'Warning: asked to load a story format but window.storyFormat is currently defined. Did another format fail to load?'
+          )
+        );
+      }
 
-	/**
-	 * Create the `attributes` property, which contains the parsed version of
-	 * the format's properties.
-	 */
+      const loader = (attributes: Record<string, unknown>) => {
+        this.attributes = attributes;
+        looseGlobal.window = oldWindow;
+        resolve();
+      };
 
-	load(rawSource: string) {
-		const oldWindow = (global as any).window;
+      looseGlobal.window = {storyFormat: loader};
+      new Function(rawSource)();
+    });
+  }
 
-		const loader = attributes => {
-			this.attributes = attributes;
-			this.loaded = true;
-			(global as any).window = oldWindow;
-		};
+  /**
+   * Returns HTML for a story bound to this format.
+   */
+  publish(story: Story) {
+    if (!this.attributes.source) {
+      throw new Error('This story format has no source attribute.');
+    }
 
-		this.rawSource = rawSource;
-		(global as any).window = {storyFormat: loader};
-		eval(this.rawSource);
-		return this;
-	}
+    if (typeof this.attributes.source !== 'string') {
+      throw new Error("This story format's source attribute is not a string.");
+    }
 
-	/**
-	 * Returns HTML for a story bound to this format.
-	 */
+    let output = this.attributes.source;
 
-	publish(story: Story) {
-		let output = this.attributes.source;
+    output = output.replace(/{{STORY_NAME}}/g, story.attributes.name as string);
+    output = output.replace(/{{STORY_DATA}}/g, story.toHTML());
+    return output;
+  }
 
-		output = output.replace(
-			/{{STORY_NAME}}/g,
-			story.attributes.name as string
-		);
-		output = output.replace(/{{STORY_DATA}}/g, story.toHTML());
-		return output;
-	}
+  /**
+   * Returns a JSONP representation of the story format's attributes.
+   */
+  toJSONP(callbackName = 'storyFormat') {
+    const serializable = Object.keys(this.attributes).reduce((result, key) => {
+      if (typeof this.attributes[key] === 'function') {
+        return {...result, [key]: this.attributes[key].toString()};
+      }
+
+      return {...result, [key]: this.attributes[key]};
+    }, {});
+
+    return `window.${callbackName}(${JSON.stringify(serializable)})`;
+  }
 }

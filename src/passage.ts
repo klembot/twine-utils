@@ -10,7 +10,7 @@ export interface PassageOptions {
  * A single passage in a story. This does not have a fromTwee() method because
  * loading Twee may have story-wide effects.
  */
-export default class Passage {
+export class Passage {
   attributes: Record<string, unknown>;
   source: string;
 

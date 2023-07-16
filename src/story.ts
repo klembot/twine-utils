@@ -1,5 +1,5 @@
 import parse from 'node-html-parser';
-import Passage from './passage';
+import {Passage} from './passage';
 
 export interface StoryOptions {
   attributes?: Record<string, unknown>;
@@ -8,7 +8,10 @@ export interface StoryOptions {
   passages?: Passage[];
 }
 
-export default class Story {
+/**
+ * A Twine story.
+ */
+export class Story {
   attributes: Record<string, unknown>;
   javascript: string;
   startPassage: Passage;
