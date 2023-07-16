@@ -34,6 +34,15 @@ describe('StoryFormat', () => {
     expect(typeof harlowe.attributes.source).toBe('string');
   });
 
+  it('hydrates attributes', async () => {
+    const format = new StoryFormat();
+
+    await format.load(
+      'window.storyFormat({"hydrate":"this.test = \'passed\'"})'
+    );
+    expect(format.attributes.test).toBe('passed');
+  });
+
   it('publishes stories', () => {
     const harlowe = new StoryFormat();
     const testStory = Story.fromHTML(testStoryHtml);

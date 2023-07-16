@@ -1,14 +1,10 @@
 import {Story} from './story';
 
-interface WindowWithFormatLoader {
-  storyFormat: (attributes: Record<string, unknown>) => void;
-}
-
 /**
  * A story format, used to publish a Twine story to playable HTML.
  */
 export class StoryFormat {
-  attributes?: Record<string, unknown>;
+  attributes: Record<string, unknown>;
 
   constructor(rawSource?: string) {
     this.attributes = {};
@@ -20,28 +16,37 @@ export class StoryFormat {
 
   /**
    * Creates the `attributes` property, which contains the parsed version of the
-   * format's properties, from a JSONP-formatted string.
+   * format's properties, from a JSONP-formatted string. This also invokes the
+   * hydrate property of the format if defined. See
+   * https://github.com/klembot/twinejs/blob/develop/EXTENDING.md#hydration
    */
   load(rawSource: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const looseGlobal = global as any;
-      const oldWindow = looseGlobal.window;
+      const oldWindow = global.window;
 
       if (oldWindow?.storyFormat) {
         reject(
           new Error(
-            'Warning: asked to load a story format but window.storyFormat is currently defined. Did another format fail to load?'
+            'Asked to load a story format but window.storyFormat is currently defined. Did another format fail to load?'
           )
         );
       }
 
       const loader = (attributes: Record<string, unknown>) => {
-        this.attributes = attributes;
-        looseGlobal.window = oldWindow;
+        const hydrateResult = {};
+
+        if (typeof attributes.hydrate === 'string') {
+          const hydrateFunc = new Function(attributes.hydrate);
+
+          hydrateFunc.call(hydrateResult);
+        }
+
+        this.attributes = {...hydrateResult, ...attributes};
+        global.window = oldWindow;
         resolve();
       };
 
-      looseGlobal.window = {storyFormat: loader};
+      global.window = {storyFormat: loader};
       new Function(rawSource)();
     });
   }
