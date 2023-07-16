@@ -4,7 +4,14 @@ This lets you work with Twee source, Twine 2 stories, and story formats in a
 programmatic way: combining them, adding extra JS or CSS, or otherwise modifying
 them in JavaScript.
 
-This also contains two command-line tools:
+This library is intended to be used in a Node context, not a browser one, though
+everything except the path module should work. They aren't efficient to use in a
+browser context, because they use Node modules for parsing HTML when in a
+browser content, you can have the browser do it for you.
 
-  -  _entwine_ combines source files and publish to a new story format.
-  - _entwee_ combines source files and saves as Twee source code.
+Things you can do with this library:
+
+- Assemble a Twine story from disparate sources
+- Convert a Twine story to another format, like JSON
+- Incorporate Twine into a build process
+- Build a tool that works with Twine stories

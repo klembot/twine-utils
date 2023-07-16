@@ -22,12 +22,11 @@
   "dependencies": {
     "html-entities": "^2.4.0",
     "node-html-parser": "^6.1.5",
-    "osenv": "^0.1.5"
+    "platform-folders": "^0.6.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "@types/node": "^20.4.2",
-    "@types/osenv": "^0.1.1",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.45.0",
