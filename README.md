@@ -2,7 +2,8 @@
 
 This lets you work with Twee source, Twine 2 stories, and story formats in a
 programmatic way: combining them, adding extra JS or CSS, or otherwise modifying
-them in JavaScript. This also is able to read Twine 1 stories (TWS), but can't write them.
+them in JavaScript. This also is able to read Twine 1 stories (TWS) and the HTML
+files created by Twine 1, but can't write them.
 
 This library is intended to be used in a Node context, not a browser one, though
 everything except the path module should work. They aren't efficient to use in a

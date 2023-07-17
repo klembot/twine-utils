@@ -98,51 +98,114 @@ export class Story {
   }
 
   /**
-   * Creates an instance from HTML source.
+   * Creates an instance from HTML source.  This converts from Twine 1 attribute
+   * names to Twine 2 attribute names where possible. Where a mapping isn't
+   * possible, the attributes are set as-is.
    * @param source source HTML to use
-   * @param silent - If true, doesn't issue any console warnings about potential problems
+   * @param twineVersion Twine version used to created the HTML--must be either
+   * `1` or `2`
+   * @param silent If true, doesn't issue any console warnings about potential
+   * problems
    */
-  static fromHTML(source: string, silent = false) {
+  static fromHTML(source: string, twineVersion = 2, silent = false) {
     const root = parse(source);
-    const storyEls = root.querySelectorAll('tw-storydata');
     const result = new Story();
 
-    if (storyEls.length === 0) {
-      if (!silent) {
-        console.warn('There are no stories in this HTML source code.');
+    if (twineVersion === 2) {
+      const storyEls = root.querySelectorAll('tw-storydata');
+
+      if (storyEls.length === 0) {
+        if (!silent) {
+          console.warn('There are no stories in this HTML source code.');
+        }
+
+        return result;
+      } else if (storyEls.length > 1 && !silent) {
+        console.warn(
+          'There appears to be more than one story in this HTML source code. Using the first.'
+        );
       }
 
-      return result;
-    } else if (storyEls.length > 1 && !silent) {
-      console.warn(
-        'There appears to be more than one story in this HTML source code. Using the first.'
-      );
-    }
+      result.attributes = {
+        ...storyEls[0].attributes,
+        hidden: undefined
+      };
 
-    result.attributes = {
-      ...storyEls[0].attributes,
-      hidden: undefined
-    };
+      for (const passageEl of storyEls[0].querySelectorAll('tw-passagedata')) {
+        const passage = Passage.fromHTML(passageEl.outerHTML, silent);
 
-    for (const passageEl of storyEls[0].querySelectorAll('tw-passagedata')) {
-      const passage = Passage.fromHTML(passageEl.outerHTML, silent);
+        result.passages.push(passage);
 
-      result.passages.push(passage);
-
-      if (passage.attributes.pid === result.attributes.startnode) {
-        result.startPassage = passage;
+        if (passage.attributes.pid === result.attributes.startnode) {
+          result.startPassage = passage;
+        }
       }
+
+      result.stylesheet = storyEls[0]
+        .querySelectorAll('style[type="text/twine-css"]')
+        .map(el => el.innerHTML)
+        .join('\n');
+
+      result.javascript = storyEls[0]
+        .querySelectorAll('script[type="text/twine-javascript"]')
+        .map(el => el.innerHTML)
+        .join('\n');
+    } else if (twineVersion === 1) {
+      for (const tiddler of root.querySelectorAll('#storeArea div')) {
+        if (!tiddler.getAttribute('tiddler')) {
+          if (!silent) {
+            console.warn(
+              'Found a child element of store area that had no tiddler attribute, skipping.'
+            );
+          }
+
+          continue;
+        }
+
+        const passage = new Passage();
+
+        // Mappable attributes.
+
+        passage.attributes.name = tiddler.getAttribute('tiddler');
+
+        if (tiddler.getAttribute('tags') !== '') {
+          console.log(tiddler.getAttribute('tags'));
+          passage.attributes.tags = tiddler.getAttribute('tags').split(' ');
+        } else {
+          passage.attributes.tags = [];
+        }
+
+        if (tiddler.getAttribute('twine-position')) {
+          passage.attributes.position = tiddler
+            .getAttribute('twine-position')
+            .split('n')
+            .map(parseFloat);
+        }
+
+        // Unmappable attributes.
+
+        passage.attributes.created = tiddler.getAttribute('created');
+        passage.attributes.modifier = tiddler.getAttribute('modifier');
+
+        passage.source = tiddler.innerHTML;
+
+        // The starting passage in TWS stories always had to be named `Start`.
+
+        if (passage.attributes.name === 'Start') {
+          result.startPassage = passage;
+        }
+
+        // The story name is set by a passage named `StoryTitle`.
+
+        if (passage.attributes.name === 'StoryTitle') {
+          result.attributes.name = passage.source;
+        }
+
+        result.passages.push(passage);
+      }
+    } else {
+      throw new Error('Twine version must either be 1 or 2.');
     }
-
-    result.stylesheet = storyEls[0]
-      .querySelectorAll('style[type="text/twine-css"]')
-      .map(el => el.innerHTML)
-      .join('\n');
-
-    result.javascript = storyEls[0]
-      .querySelectorAll('script[type="text/twine-javascript"]')
-      .map(el => el.innerHTML)
-      .join('\n');
 
     return result;
   }
@@ -289,8 +352,6 @@ export class Story {
       passage.attributes.modified = widget.passage.modified;
       passage.attributes.selected = widget.selected;
 
-      result.passages.push(passage);
-
       // The starting passage in TWS stories always had to be named `Start`.
 
       if (passage.attributes.name === 'Start') {
@@ -302,6 +363,8 @@ export class Story {
       if (passage.attributes.name === 'StoryTitle') {
         result.attributes.name = passage.source;
       }
+
+      result.passages.push(passage);
     }
 
     return result;
@@ -377,7 +440,7 @@ export class Story {
   }
 
   /**
-   * Returns an HTML fragment for this story. Normally, you'd use a
+   * Returns a Twine 2 HTML fragment for this story. Normally, you'd use a
    * StoryFormat to bind it as a complete HTML page.
    */
   toHTML() {

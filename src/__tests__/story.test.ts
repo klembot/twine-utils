@@ -7,19 +7,26 @@ import parse from 'node-html-parser';
 describe('Story', () => {
   let testTwee: string;
   let testTwee3: string;
-  let testStoryHtml: string;
+  let testStoryTwine1Html: string;
+  let testStoryTwine2Html: string;
 
   beforeAll(async () => {
-    testStoryHtml = await readFile(
-      path.join(__dirname, 'data/test-story.html'),
-      {encoding: 'utf8'}
+    testStoryTwine1Html = await readFile(
+      path.join(__dirname, 'data/test-twine1.html'),
+      'utf8'
     );
-    testTwee = await readFile(path.join(__dirname, 'data/test-twee.txt'), {
-      encoding: 'utf8'
-    });
-    testTwee3 = await readFile(path.join(__dirname, 'data/test-twee-v3.txt'), {
-      encoding: 'utf8'
-    });
+    testStoryTwine2Html = await readFile(
+      path.join(__dirname, 'data/test-story.html'),
+      'utf8'
+    );
+    testTwee = await readFile(
+      path.join(__dirname, 'data/test-twee.txt'),
+      'utf8'
+    );
+    testTwee3 = await readFile(
+      path.join(__dirname, 'data/test-twee-v3.txt'),
+      'utf8'
+    );
   });
 
   it('creates an empty object when constructed without options', () => {
@@ -55,8 +62,31 @@ describe('Story', () => {
     expect(test.stylesheet).toBe('\nline 1\nline 2');
   });
 
-  it('creates stories from HTML', () => {
-    const test = Story.fromHTML(testStoryHtml);
+  it.only('creates stories from Twine 1 HTML', () => {
+    const test = Story.fromHTML(testStoryTwine1Html, 1);
+
+    // Have to do individual comparisons because these are instances of a class.
+
+    expect(test.attributes.name).toBe('Untitled Story');
+    expect(test.passages.length).toBe(3);
+    expect(test.passages[0].attributes.name).toBe('Start');
+    expect(test.passages[0].attributes.tags).toEqual([]);
+    expect(test.passages[0].source).toEqual(
+      'Your story will display this passage first. Edit it by double clicking it.'
+    );
+    expect(test.passages[0].attributes.created).toBe('202307171900');
+    expect(test.passages[1].attributes.name).toBe('StoryAuthor');
+    expect(test.passages[1].attributes.tags).toEqual([]);
+    expect(test.passages[1].source).toEqual('Anonymous');
+    expect(test.passages[1].attributes.created).toBe('202307171900');
+    expect(test.passages[2].attributes.name).toBe('StoryTitle');
+    expect(test.passages[2].attributes.tags).toEqual([]);
+    expect(test.passages[2].source).toEqual('Untitled Story');
+    expect(test.passages[2].attributes.created).toBe('202307171900');
+  });
+
+  it('creates stories from Twine 2 HTML', () => {
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     // Have to do individual comparisons because these are instances of a class.
 
@@ -183,33 +213,33 @@ describe('Story', () => {
   });
 
   it('retains the start passage when loading HTML', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.startPassage).not.toBeUndefined();
     expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
   });
 
   it('handles an empty stylesheet properly when loading HTML', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.stylesheet).toBe('');
   });
 
   it('handles an empty JavaScript property properly when loading HTML', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.javascript).toBe('');
   });
 
   it('updates the start passage when merging in HTML', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.startPassage).not.toBeUndefined();
     expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
   });
 
   it('changes the start passage with setStartByName', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
     test.setStartByName('1');
@@ -218,7 +248,7 @@ describe('Story', () => {
   });
 
   it('publishes an HTML fragment', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     const root = parse(test.toHTML());
 
@@ -289,7 +319,7 @@ describe('Story', () => {
   });
 
   it('encodes HTML entities in source properly', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     test.passages = [new Passage({source: '"&<><br>'})];
     expect(test.toHTML()).toBe(
@@ -298,7 +328,7 @@ describe('Story', () => {
   });
 
   it('outputs Twee', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.toTwee()).toBe(
       ':: Untitled Passage [foo] {"position":"158,135"}\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1 {"position":"247,286"}\nThis is another passage.\n\n:: HTML {"position":"400,400"}\nThis is a passage <span>with an encoded tag</span>.\n\n:: StoryTitle\nTest\n\n:: StoryData\n{\n  "startnode": "1",\n  "creator": "Twine",\n  "creator-version": "2.0.11",\n  "ifid": "3AE380EE-4B34-4D0D-A8E2-BE624EB271C9",\n  "format": "SugarCube",\n  "options": ""\n}'
@@ -306,7 +336,7 @@ describe('Story', () => {
   });
 
   it('outputs Twee < version 3', () => {
-    const test = Story.fromHTML(testStoryHtml);
+    const test = Story.fromHTML(testStoryTwine2Html);
 
     expect(test.toTwee(1)).toBe(
       ':: Untitled Passage [foo]\nThis is some text with "quotes" & other characters.\n\n[[1]]\n\n:: 1\nThis is another passage.\n\n:: HTML\nThis is a passage <span>with an encoded tag</span>.'
