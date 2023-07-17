@@ -1,4 +1,5 @@
 import parse from 'node-html-parser';
+import {Parser} from 'pickleparser';
 import {Passage} from './passage';
 
 /**
@@ -22,6 +23,41 @@ export interface StoryOptions {
    * Passages in the story.
    */
   passages?: Passage[];
+}
+
+/**
+ * The structure of a parsed TWS (Twine 1 story). Properties are undocumented
+ * because their purpose isn't always clear (PRs to clarify this are welcome).
+ * This reflects a story created by Twine 1.4.1; earlier versions might have a
+ * different structure.
+ */
+export interface TWSStory {
+  buildDestination: string;
+  saveDestination: string;
+  metadata: Record<string, unknown>;
+  target: string;
+  storyPanel: {
+    scale: number;
+    snapping: boolean;
+    widgets: TWSPassage[];
+  };
+}
+
+/**
+ * The structure of a passage in a parsed TWS (Twine 1 story). Properties are
+ * undocumented because their purpose isn't always clear (PRs to clarify this
+ * are welcome).
+ */
+export interface TWSPassage {
+  passage: {
+    created: Record<string, unknown>;
+    tags: string[];
+    text: string;
+    title: string;
+    modified: Record<string, unknown>;
+  };
+  pos: number[];
+  selected: boolean;
 }
 
 /**
@@ -211,6 +247,61 @@ export class Story {
       }
 
       result.passages.push(passage);
+    }
+
+    return result;
+  }
+
+  /**
+   * Creates an instance from TWS (or Twine 1) source. This converts from Twine
+   * 1 attribute names to Twine 2 attribute names where possible. Where a
+   * mapping isn't possible, the attributes are set as-is.
+   */
+  static fromTWS(buffer: Uint8Array | Int8Array | Uint8ClampedArray) {
+    const parser = new Parser();
+    const parsed = parser.parse(buffer) as TWSStory;
+    const result = new Story();
+
+    // Mappable top-level attributes.
+
+    result.attributes.zoom = parsed.storyPanel.scale;
+
+    // Unmappable attributes.
+
+    result.attributes.buildDestination = parsed.buildDestination;
+    result.attributes.metadata = parsed.metadata;
+    result.attributes.saveDestination = parsed.saveDestination;
+    result.attributes.snapping = parsed.storyPanel.snapping;
+    result.attributes.target = parsed.target;
+
+    for (const widget of parsed.storyPanel.widgets) {
+      const passage = new Passage();
+
+      // Mappable attributes.
+
+      passage.attributes.name = widget.passage.title;
+      passage.attributes.tags = widget.passage.tags;
+      passage.source = widget.passage.text;
+
+      // Unmappable attributes.
+
+      passage.attributes.created = widget.passage.created;
+      passage.attributes.modified = widget.passage.modified;
+      passage.attributes.selected = widget.selected;
+
+      result.passages.push(passage);
+
+      // The starting passage in TWS stories always had to be named `Start`.
+
+      if (passage.attributes.name === 'Start') {
+        result.startPassage = passage;
+      }
+
+      // The story name is set by a passage named `StoryTitle`.
+
+      if (passage.attributes.name === 'StoryTitle') {
+        result.attributes.name = passage.source;
+      }
     }
 
     return result;

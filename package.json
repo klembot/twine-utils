@@ -22,6 +22,7 @@
   "dependencies": {
     "html-entities": "^2.4.0",
     "node-html-parser": "^6.1.5",
+    "pickleparser": "^0.1.0",
     "platform-folders": "^0.6.0"
   },
   "devDependencies": {

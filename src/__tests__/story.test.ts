@@ -138,11 +138,55 @@ describe('Story', () => {
     global.console.warn = oldWarn;
   });
 
+  it('creates stories from TWS source', async () => {
+    const fileData = await readFile(
+      path.join(__dirname, 'data/test-twine1.tws'),
+      'binary'
+    );
+    const buffer = Buffer.from(fileData, 'binary');
+    const test = Story.fromTWS(buffer);
+
+    expect(test.attributes.buildDestination).toBe('');
+    expect(test.attributes.metadata).toEqual({});
+    expect(test.attributes.name).toBe('Untitled Story');
+    expect(test.attributes.snapping).toBe(false);
+    expect(test.attributes.saveDestination).toBe('/Test.tws');
+    expect(test.attributes.target).toBe('sugarcane');
+    expect(test.attributes.zoom).toBe(1);
+    expect(test.passages.length).toBe(4);
+    expect(test.passages[0].attributes.name).toBe('Start');
+    expect(test.passages[0].attributes.tags).toEqual([]);
+    expect(test.passages[0].source).toEqual(
+      'Your story will display this passage first. Edit it by double clicking it.'
+    );
+    expect(test.passages[0].attributes.created).toEqual({});
+    expect(test.passages[0].attributes.modified).toEqual({});
+    expect(test.passages[0].attributes.selected).toBe(false);
+    expect(test.passages[1].attributes.name).toBe('StoryTitle');
+    expect(test.passages[1].attributes.tags).toEqual([]);
+    expect(test.passages[1].source).toEqual('Untitled Story');
+    expect(test.passages[1].attributes.created).toEqual({});
+    expect(test.passages[1].attributes.modified).toEqual({});
+    expect(test.passages[1].attributes.selected).toBe(false);
+    expect(test.passages[2].attributes.name).toBe('StoryAuthor');
+    expect(test.passages[2].attributes.tags).toEqual([]);
+    expect(test.passages[2].source).toEqual('Anonymous');
+    expect(test.passages[2].attributes.created).toEqual({});
+    expect(test.passages[2].attributes.modified).toEqual({});
+    expect(test.passages[2].attributes.selected).toBe(false);
+    expect(test.passages[3].attributes.name).toBe('Tagged Passage');
+    expect(test.passages[3].attributes.tags).toEqual(['tag1', 'tag2']);
+    expect(test.passages[3].source).toEqual('This passage has tags.');
+    expect(test.passages[3].attributes.created).toEqual({});
+    expect(test.passages[3].attributes.modified).toEqual({});
+    expect(test.passages[3].attributes.selected).toBe(true);
+  });
+
   it('retains the start passage when loading HTML', () => {
     const test = Story.fromHTML(testStoryHtml);
 
     expect(test.startPassage).not.toBeUndefined();
-    expect(test.startPassage.attributes.name).toBe('Untitled Passage');
+    expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
   });
 
   it('handles an empty stylesheet properly when loading HTML', () => {
@@ -161,16 +205,16 @@ describe('Story', () => {
     const test = Story.fromHTML(testStoryHtml);
 
     expect(test.startPassage).not.toBeUndefined();
-    expect(test.startPassage.attributes.name).toBe('Untitled Passage');
+    expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
   });
 
   it('changes the start passage with setStartByName', () => {
     const test = Story.fromHTML(testStoryHtml);
 
-    expect(test.startPassage.attributes.name).toBe('Untitled Passage');
+    expect(test.startPassage?.attributes.name).toBe('Untitled Passage');
     test.setStartByName('1');
-    expect(test.startPassage.attributes.name).toBe('1');
-    expect(test.startPassage.source).toBe('This is another passage.');
+    expect(test.startPassage?.attributes.name).toBe('1');
+    expect(test.startPassage?.source).toBe('This is another passage.');
   });
 
   it('publishes an HTML fragment', () => {
