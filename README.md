@@ -6,8 +6,10 @@ them in JavaScript.
 
 This library is intended to be used in a Node context, not a browser one, though
 everything except the path module should work. They aren't efficient to use in a
-browser context, because they use Node modules for parsing HTML when in a
-browser content, you can have the browser do it for you.
+browser context because they use Node modules for parsing HTML. In a browser
+content, you can have the browser do this for you instead.
+
+This doesn't have functionality for working with Twine 1 stories.
 
 Things you can do with this library:
 

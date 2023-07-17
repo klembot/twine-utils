@@ -6,8 +6,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Story = void 0;
 const node_html_parser_1 = __importDefault(require("node-html-parser"));
-const passage_1 = __importDefault(require("./passage"));
+const passage_1 = require("./passage");
+/**
+ * A Twine story.
+ */
 class Story {
     constructor(props = {}) {
         var _a, _b, _c, _d, _e;
@@ -21,6 +25,8 @@ class Story {
     }
     /**
      * Creates an instance from HTML source.
+     * @param source source HTML to use
+     * @param silent - If true, doesn't issue any console warnings about potential problems
      */
     static fromHTML(source, silent = false) {
         const root = (0, node_html_parser_1.default)(source);
@@ -37,7 +43,7 @@ class Story {
         }
         result.attributes = Object.assign(Object.assign({}, storyEls[0].attributes), { hidden: undefined });
         for (const passageEl of storyEls[0].querySelectorAll('tw-passagedata')) {
-            const passage = passage_1.default.fromHTML(passageEl.outerHTML, silent);
+            const passage = passage_1.Passage.fromHTML(passageEl.outerHTML, silent);
             result.passages.push(passage);
             if (passage.attributes.pid === result.attributes.startnode) {
                 result.startPassage = passage;
@@ -65,7 +71,7 @@ class Story {
             if (passageSource.trim() === '') {
                 continue;
             }
-            const passage = new passage_1.default();
+            const passage = new passage_1.Passage();
             // The first line will always be the passage title.
             const firstLineMatch = /^.*$/m.exec(passageSource);
             let firstLine;
@@ -137,6 +143,7 @@ class Story {
     }
     /**
      * Merges the contents of another story object with this one.
+     * @param story Other story to merge with; will not be modified
      */
     mergeStory(story) {
         if (story.passages.length !== 0) {
@@ -161,21 +168,24 @@ class Story {
         return this;
     }
     /**
-     * Merges JavaScript source in with this story.
+     * Merges JavaScript source into this story, adding to any existing.
+     * @param source Source JavaScript to add
      */
     mergeJavaScript(source) {
         this.javascript += '\n' + source;
         return this;
     }
     /**
-     * Merges CSS source in with this story.
+     * Merges CSS source into this story, adding to any existing.
+     * @param source Source CSS to add
      */
     mergeStylesheet(source) {
         this.stylesheet += '\n' + source;
         return this;
     }
     /**
-     * Sets the start attribute to a named passage.
+     * Sets the start attribute to a named passage. If the passage with this name doesn't exist, this throws an error.
+     * @param name Passage name
      */
     setStartByName(name) {
         const target = this.passages.find(passage => passage.attributes.name === name);
@@ -232,4 +242,4 @@ class Story {
         return output.trim();
     }
 }
-exports.default = Story;
+exports.Story = Story;

@@ -1,50 +1,94 @@
 "use strict";
-/**
- * Provides a way to look up where the user's Twine directory is. Right now this
- * does not handle localized directory names :(.
- */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_1 = __importDefault(require("fs"));
-const osenv_1 = __importDefault(require("osenv"));
-const path_1 = __importDefault(require("path"));
-const documentDirectoryNames = ['Documents', 'My Documents'];
-const twineDirectoryNames = ['Twine'];
-const storyDirectoryNames = ['Stories'];
+exports.storyDirectorySync = exports.storyDirectory = void 0;
+const fs_1 = require("fs");
+const promises_1 = require("fs/promises");
+const path_1 = require("path");
+const platform_folders_1 = require("platform-folders");
 /**
- * Returns an absolute path to the user's story directory. If it can't be found,
- * this throws an error.
+ * Possible names for the Stories folder in Twine. These were manually assembled
+ * from the translation files.
+ */
+const storyDirectoryNames = [
+    '故事',
+    'Cerita',
+    'Geschichten',
+    'Histórias',
+    'Historias',
+    'Historier',
+    'Històries',
+    'Histoires',
+    'Истории',
+    'Оповідання',
+    'Öyküler',
+    'Příběhy',
+    'Racconti',
+    'Stories',
+    'Tarinat',
+    'Verhalen',
+    'Zgodbe'
+];
+/**
+ * Returns a promise to an absolute path to the user's story directory. If it
+ * can't be found, this rejects.
+ */
+function storyDirectory() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const documentsDirectory = (0, platform_folders_1.getDocumentsFolder)();
+        function directoryExists(path) {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield (0, promises_1.access)(path);
+                return path;
+            });
+        }
+        const twineDirectory = (0, path_1.join)(documentsDirectory, 'Twine');
+        try {
+            yield directoryExists(twineDirectory);
+        }
+        catch (error) {
+            throw new Error('Could not find your Twine directory');
+        }
+        const storiesDirectoryName = yield Promise.any(storyDirectoryNames.map(name => directoryExists((0, path_1.join)(twineDirectory, name))));
+        if (!storiesDirectoryName) {
+            throw new Error('Could not find your Stories directory');
+        }
+        return storiesDirectoryName;
+    });
+}
+exports.storyDirectory = storyDirectory;
+/**
+ * Synchronous version of storyDirectory().
  */
 function storyDirectorySync() {
-    let result = osenv_1.default.home();
-    const testDir = path => {
+    const documentsDirectory = (0, platform_folders_1.getDocumentsFolder)();
+    function testDirectory(path) {
         try {
-            fs_1.default.accessSync(path);
-            return true;
+            (0, fs_1.accessSync)(path);
+            return path;
         }
         catch (e) {
             return false;
         }
-    };
-    // Find the documents directory.
-    const docDirectory = documentDirectoryNames.find(dir => testDir(path_1.default.join(result, dir)));
-    if (!docDirectory) {
-        throw new Error('Could not find your documents directory');
     }
-    result = path_1.default.join(result, docDirectory);
-    // Find the Twine directory.
-    const twineDirectory = twineDirectoryNames.find(dir => testDir(path_1.default.join(result, dir)));
-    if (!twineDirectory) {
+    const twineDirectory = (0, path_1.join)(documentsDirectory, 'Twine');
+    if (!testDirectory(twineDirectory)) {
         throw new Error('Could not find your Twine directory');
     }
-    result = path_1.default.join(result, twineDirectory);
-    // Finally, find the Stories directory.
-    const storiesDirectory = storyDirectoryNames.find(dir => testDir(path_1.default.join(result, dir)));
-    if (!storiesDirectory) {
-        throw new Error('Could not find your Stories directory');
+    for (const name of storyDirectoryNames) {
+        const storyDirectoryName = (0, path_1.join)(twineDirectory, name);
+        if (testDirectory(storyDirectoryName)) {
+            return storyDirectoryName;
+        }
     }
-    return path_1.default.join(result, storiesDirectory);
+    throw new Error('Could not find your Stories directory');
 }
 exports.storyDirectorySync = storyDirectorySync;

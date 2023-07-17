@@ -1,9 +1,9 @@
 import parse from 'node-html-parser';
-import Passage from './passage';
+import { Passage } from './passage';
 /**
  * A Twine story.
  */
-export default class Story {
+export class Story {
     constructor(props = {}) {
         var _a, _b, _c, _d, _e;
         var _f;
@@ -16,6 +16,8 @@ export default class Story {
     }
     /**
      * Creates an instance from HTML source.
+     * @param source source HTML to use
+     * @param silent - If true, doesn't issue any console warnings about potential problems
      */
     static fromHTML(source, silent = false) {
         const root = parse(source);
@@ -132,6 +134,7 @@ export default class Story {
     }
     /**
      * Merges the contents of another story object with this one.
+     * @param story Other story to merge with; will not be modified
      */
     mergeStory(story) {
         if (story.passages.length !== 0) {
@@ -156,21 +159,24 @@ export default class Story {
         return this;
     }
     /**
-     * Merges JavaScript source in with this story.
+     * Merges JavaScript source into this story, adding to any existing.
+     * @param source Source JavaScript to add
      */
     mergeJavaScript(source) {
         this.javascript += '\n' + source;
         return this;
     }
     /**
-     * Merges CSS source in with this story.
+     * Merges CSS source into this story, adding to any existing.
+     * @param source Source CSS to add
      */
     mergeStylesheet(source) {
         this.stylesheet += '\n' + source;
         return this;
     }
     /**
-     * Sets the start attribute to a named passage.
+     * Sets the start attribute to a named passage. If the passage with this name doesn't exist, this throws an error.
+     * @param name Passage name
      */
     setStartByName(name) {
         const target = this.passages.find(passage => passage.attributes.name === name);

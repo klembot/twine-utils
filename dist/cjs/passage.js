@@ -7,10 +7,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Passage = void 0;
 const html_entities_1 = require("html-entities");
 const node_html_parser_1 = __importDefault(require("node-html-parser"));
 /**
- * A single passage in a story. This does not have a fromTwee() method because
+ * A single passage in a story. This does not have a `fromTwee()` method because
  * loading Twee may have story-wide effects.
  */
 class Passage {
@@ -21,6 +22,8 @@ class Passage {
     }
     /**
      * Creates an instance from an HTML fragment.
+     * @param source - source HTML to use
+     * @param silent - If true, doesn't issue any console warnings about potential problems
      */
     static fromHTML(source, silent = false) {
         const root = (0, node_html_parser_1.default)(source);
@@ -47,6 +50,7 @@ class Passage {
     /**
      * Returns an HTML fragment for this passage, optionally setting the passage
      * id (or pid) manually.
+     * @param pid - PID to set in the published HTML
      */
     toHTML(pid) {
         const root = (0, node_html_parser_1.default)('<div><tw-passagedata></tw-passagedata></div>');
@@ -63,6 +67,7 @@ class Passage {
     /**
      * Returns Twee source code for this story. *Warning:* if the Twee version
      * specified is less than 3, this is a lossy conversion.
+     * @param tweeVersion version of the Twee spec to use
      * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
      */
     toTwee(tweeVersion = 3) {
@@ -80,4 +85,4 @@ class Passage {
         return output + `\n${this.source}`;
     }
 }
-exports.default = Passage;
+exports.Passage = Passage;

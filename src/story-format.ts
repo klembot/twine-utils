@@ -4,8 +4,14 @@ import {Story} from './story';
  * A story format, used to publish a Twine story to playable HTML.
  */
 export class StoryFormat {
+  /**
+   * Attributes on the story format, like source.
+   */
   attributes: Record<string, unknown>;
 
+  /**
+   * @param rawSource JSONP source to initially load
+   */
   constructor(rawSource?: string) {
     this.attributes = {};
 
@@ -17,8 +23,10 @@ export class StoryFormat {
   /**
    * Creates the `attributes` property, which contains the parsed version of the
    * format's properties, from a JSONP-formatted string. This also invokes the
-   * hydrate property of the format if defined. See
-   * https://github.com/klembot/twinejs/blob/develop/EXTENDING.md#hydration
+   * hydrate property of the format if defined. If the format is malformed, this
+   * will reject.
+   * @param rawSource JSONP source to load
+   * @see https://github.com/klembot/twinejs/blob/develop/EXTENDING.md#hydration
    */
   load(rawSource: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -53,6 +61,7 @@ export class StoryFormat {
 
   /**
    * Returns HTML for a story bound to this format.
+   * @param story Story to publish
    */
   publish(story: Story) {
     if (!this.attributes.source) {
@@ -92,13 +101,13 @@ export class StoryFormat {
       }
 
       if (typeof value === 'object') {
-        let result = '{';
+        const result = [];
 
         for (const key in value) {
-          result += `${key}:${dehydrate(value[key])}`;
+          result.push(`${key}:${dehydrate(value[key])}`);
         }
 
-        return result + '}';
+        return '{' + result.join(',') + '}';
       }
 
       return value.toString();

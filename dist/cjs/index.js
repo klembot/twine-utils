@@ -22,11 +22,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const story_1 = __importDefault(require("./story"));
-exports.Story = story_1.default;
-const story_format_1 = __importDefault(require("./story-format"));
-exports.StoryFormat = story_format_1.default;
+exports.StoryFormat = exports.Story = exports.Passage = exports.Path = void 0;
+exports.Path = __importStar(require("./path"));
+var passage_1 = require("./passage");
+Object.defineProperty(exports, "Passage", { enumerable: true, get: function () { return passage_1.Passage; } });
+var story_1 = require("./story");
+Object.defineProperty(exports, "Story", { enumerable: true, get: function () { return story_1.Story; } });
+var story_format_1 = require("./story-format");
+Object.defineProperty(exports, "StoryFormat", { enumerable: true, get: function () { return story_format_1.StoryFormat; } });

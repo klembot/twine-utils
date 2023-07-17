@@ -1,9 +1,9 @@
 /**
- * Provides a way to look up where the user's Twine directory is. Right now this
- * does not handle localized directory names :(.
+ * Returns a promise to an absolute path to the user's story directory. If it
+ * can't be found, this rejects.
  */
+export declare function storyDirectory(): Promise<string>;
 /**
- * Returns an absolute path to the user's story directory. If it can't be found,
- * this throws an error.
+ * Synchronous version of storyDirectory().
  */
 export declare function storyDirectorySync(): string;

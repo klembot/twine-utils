@@ -26,7 +26,7 @@ describe('StoryFormat', () => {
     expect(empty.attributes).toEqual({});
   });
 
-  it('loads a story format from a file', async () => {
+  it('loads a story format from JSONP source', async () => {
     const harlowe = new StoryFormat();
 
     await harlowe.load(harloweSrc);
@@ -83,9 +83,22 @@ describe('StoryFormat', () => {
     it('defines functions in the hydrate property', () => {
       const format = new StoryFormat();
 
-      format.attributes.test = () => console.log('hello world');
-      expect(format.toJSONP()).toBe(
-        'window.storyFormat({"hydrate":"this.test=() => console.log(\'hello world\');"})'
+      format.attributes.test = () => '"test passed"';
+      format.attributes.test2 = () => "'test passed'";
+
+      const jsonp = format.toJSONP();
+
+      expect(jsonp).toBe(
+        'window.storyFormat({"hydrate":"this.test=() => \'\\"test passed\\"\';this.test2=() => \\"\'test passed\'\\";"})'
+      );
+
+      const roundtrip = new StoryFormat(jsonp);
+
+      expect((roundtrip.attributes.test as () => string)()).toBe(
+        '"test passed"'
+      );
+      expect((roundtrip.attributes.test2 as () => string)()).toBe(
+        "'test passed'"
       );
     });
 
@@ -95,13 +108,50 @@ describe('StoryFormat', () => {
       format.attributes = {
         nested: {
           second: {
-            test: () => console.log('hello world')
+            test: () => 'test passed',
+            test2: () => '"test passed"'
           }
         }
       };
-      expect(format.toJSONP()).toBe(
-        'window.storyFormat({"hydrate":"this.nested={second:{test:() => console.log(\'hello world\')}};"})'
+
+      const jsonp = format.toJSONP();
+
+      expect(jsonp).toBe(
+        'window.storyFormat({"hydrate":"this.nested={second:{test:() => \'test passed\',test2:() => \'\\"test passed\\"\'}};"})'
       );
+
+      const roundtrip = new StoryFormat(jsonp);
+
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      expect((roundtrip.attributes as any).nested.second.test()).toBe(
+        'test passed'
+      );
+      expect((roundtrip.attributes as any).nested.second.test2()).toBe(
+        '"test passed"'
+      );
+      /* eslint-enable @typescript-eslint/no-explicit-any */
+    });
+
+    it('handles arrays of functions properly', () => {
+      const format = new StoryFormat();
+
+      format.attributes = {
+        array: [() => 'test passed', () => '"test passed"']
+      };
+
+      const jsonp = format.toJSONP();
+
+      expect(jsonp).toBe(
+        'window.storyFormat({"hydrate":"this.array=[() => \'test passed\',() => \'\\"test passed\\"\'];"})'
+      );
+
+      const roundtrip = new StoryFormat(jsonp);
+
+      expect(Array.isArray(roundtrip.attributes.array)).toBe(true);
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      expect((roundtrip.attributes as any).array[0]()).toBe('test passed');
+      expect((roundtrip.attributes as any).array[1]()).toBe('"test passed"');
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     });
 
     it("throws an error if an attribute needs to be hydrated, but there's a pre-existing hydrate property", () => {

@@ -1,10 +1,26 @@
 import parse from 'node-html-parser';
 import {Passage} from './passage';
 
+/**
+ * Options that can be set when creating a Story object.
+ */
 export interface StoryOptions {
+  /**
+   * General attributes of the story itself, like name or startnode. These
+   * appear on the `<tw-storydata>` element when published.
+   */
   attributes?: Record<string, unknown>;
+  /**
+   * The story's custom JavaScript.
+   */
   javascript?: string;
+  /**
+   * The story's custom stylesheet.
+   */
   stylesheet?: string;
+  /**
+   * Passages in the story.
+   */
   passages?: Passage[];
 }
 
@@ -12,10 +28,27 @@ export interface StoryOptions {
  * A Twine story.
  */
 export class Story {
+  /**
+   * General attributes of the story itself, like name or startnode. These
+   * appear on the `<tw-storydata>` element when published.
+   */
   attributes: Record<string, unknown>;
+  /**
+   * The story's custom JavaScript.
+   */
   javascript: string;
-  startPassage: Passage;
+  /**
+   * The start passage of the story, if one exists. This should always be a
+   * member of `passages`.
+   */
+  startPassage?: Passage;
+  /**
+   * The story's custom stylesheet.
+   */
   stylesheet: string;
+  /**
+   * Passages in the story.
+   */
   passages: Passage[];
 
   constructor(props: StoryOptions = {}) {
@@ -30,6 +63,8 @@ export class Story {
 
   /**
    * Creates an instance from HTML source.
+   * @param source source HTML to use
+   * @param silent - If true, doesn't issue any console warnings about potential problems
    */
   static fromHTML(source: string, silent = false) {
     const root = parse(source);
@@ -183,6 +218,7 @@ export class Story {
 
   /**
    * Merges the contents of another story object with this one.
+   * @param story Other story to merge with; will not be modified
    */
   mergeStory(story: Story) {
     if (story.passages.length !== 0) {
@@ -215,7 +251,8 @@ export class Story {
   }
 
   /**
-   * Merges JavaScript source in with this story.
+   * Merges JavaScript source into this story, adding to any existing.
+   * @param source Source JavaScript to add
    */
   mergeJavaScript(source: string) {
     this.javascript += '\n' + source;
@@ -223,7 +260,8 @@ export class Story {
   }
 
   /**
-   * Merges CSS source in with this story.
+   * Merges CSS source into this story, adding to any existing.
+   * @param source Source CSS to add
    */
   mergeStylesheet(source: string) {
     this.stylesheet += '\n' + source;
@@ -231,7 +269,8 @@ export class Story {
   }
 
   /**
-   * Sets the start attribute to a named passage.
+   * Sets the start attribute to a named passage. If the passage with this name doesn't exist, this throws an error.
+   * @param name Passage name
    */
   setStartByName(name: string) {
     const target = this.passages.find(
