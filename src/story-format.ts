@@ -74,14 +74,63 @@ export class StoryFormat {
    * Returns a JSONP representation of the story format's attributes.
    */
   toJSONP(callbackName = 'storyFormat') {
-    const serializable = Object.keys(this.attributes).reduce((result, key) => {
-      if (typeof this.attributes[key] === 'function') {
-        return {...result, [key]: this.attributes[key].toString()};
+    function isSerializable(value: unknown): boolean {
+      if (Array.isArray(value)) {
+        return value.every(isSerializable);
       }
 
-      return {...result, [key]: this.attributes[key]};
-    }, {});
+      if (typeof value === 'object') {
+        return Object.values(value).every(isSerializable);
+      }
 
-    return `window.${callbackName}(${JSON.stringify(serializable)})`;
+      return ['boolean', 'number', 'string'].includes(typeof value);
+    }
+
+    function dehydrate(value: unknown): string {
+      if (Array.isArray(value)) {
+        return `[${value.map(dehydrate)}]`;
+      }
+
+      if (typeof value === 'object') {
+        let result = '{';
+
+        for (const key in value) {
+          result += `${key}:${dehydrate(value[key])}`;
+        }
+
+        return result + '}';
+      }
+
+      return value.toString();
+    }
+
+    const serialized: Record<string, unknown> = {};
+    const hydrated = {};
+
+    for (const key in this.attributes) {
+      if (isSerializable(this.attributes[key])) {
+        serialized[key] = this.attributes[key];
+      } else {
+        hydrated[key] = this.attributes[key];
+      }
+    }
+
+    if (Object.keys(hydrated).length > 0) {
+      if ('hydrate' in serialized) {
+        throw new Error(
+          'A hydrate property is needed for this story format, but hydrate is already defined in its attributes.'
+        );
+      }
+
+      let hydratedString = '';
+
+      for (const key in hydrated) {
+        hydratedString += `this.${key}=${dehydrate(hydrated[key])};`;
+      }
+
+      serialized.hydrate = hydratedString;
+    }
+
+    return `window.${callbackName}(${JSON.stringify(serialized)})`;
   }
 }

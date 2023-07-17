@@ -80,13 +80,39 @@ describe('StoryFormat', () => {
       );
     });
 
-    it('transforms function attributes to strings', () => {
+    it('defines functions in the hydrate property', () => {
       const format = new StoryFormat();
 
       format.attributes.test = () => console.log('hello world');
       expect(format.toJSONP()).toBe(
-        'window.storyFormat({"test":"() => console.log(\'hello world\')"})'
+        'window.storyFormat({"hydrate":"this.test=() => console.log(\'hello world\');"})'
       );
+    });
+
+    it('handles nested functions properly', () => {
+      const format = new StoryFormat();
+
+      format.attributes = {
+        nested: {
+          second: {
+            test: () => console.log('hello world')
+          }
+        }
+      };
+      expect(format.toJSONP()).toBe(
+        'window.storyFormat({"hydrate":"this.nested={second:{test:() => console.log(\'hello world\')}};"})'
+      );
+    });
+
+    it("throws an error if an attribute needs to be hydrated, but there's a pre-existing hydrate property", () => {
+      const format = new StoryFormat();
+
+      format.attributes = {
+        hydrate: true,
+        test: () => {}
+      };
+
+      expect(() => format.toJSONP()).toThrow();
     });
   });
 });
