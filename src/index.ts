@@ -1,6 +1,4 @@
-import * as Path from './path';
-import Passage from './passage';
-import Story from './story';
-import StoryFormat from './story-format';
-
-export {Passage, Path, Story, StoryFormat};
+export * as Path from './path';
+export {Passage} from './passage';
+export {Story} from './story';
+export {StoryFormat} from './story-format';
