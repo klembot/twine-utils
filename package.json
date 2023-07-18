@@ -11,6 +11,9 @@
     "type": "git",
     "url": "https://github.com/klembot/twine-utils"
   },
+  "files": [
+    "dist/**"
+  ],
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "scripts": {
