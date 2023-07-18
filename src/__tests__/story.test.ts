@@ -72,7 +72,7 @@ describe('Story', () => {
     expect(test.passages[0].attributes.name).toBe('Start');
     expect(test.passages[0].attributes.tags).toEqual([]);
     expect(test.passages[0].source).toEqual(
-      'Your story will display this passage first. Edit it by double clicking it.'
+      'Your story will display this passage first.\n\nEdit it by double clicking it.'
     );
     expect(test.passages[0].attributes.created).toBe('202307171900');
     expect(test.passages[0].attributes.position).toBe('10,10');
