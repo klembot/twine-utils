@@ -1,5 +1,7 @@
 # twine-utils
 
+📖 [API documentation](https://klembot.github.io/twine-utils/)
+
 This lets you work with Twee source, Twine 2 stories, and story formats in a
 programmatic way: combining them, adding extra JS or CSS, or otherwise modifying
 them in JavaScript. This also is able to read Twine 1 stories (TWS) and the HTML
