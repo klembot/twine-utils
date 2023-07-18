@@ -62,7 +62,7 @@ describe('Story', () => {
     expect(test.stylesheet).toBe('\nline 1\nline 2');
   });
 
-  it.only('creates stories from Twine 1 HTML', () => {
+  it('creates stories from Twine 1 HTML', () => {
     const test = Story.fromHTML(testStoryTwine1Html, 1);
 
     // Have to do individual comparisons because these are instances of a class.
@@ -75,14 +75,17 @@ describe('Story', () => {
       'Your story will display this passage first. Edit it by double clicking it.'
     );
     expect(test.passages[0].attributes.created).toBe('202307171900');
+    expect(test.passages[0].attributes.position).toBe('10,10');
     expect(test.passages[1].attributes.name).toBe('StoryAuthor');
     expect(test.passages[1].attributes.tags).toEqual([]);
     expect(test.passages[1].source).toEqual('Anonymous');
     expect(test.passages[1].attributes.created).toBe('202307171900');
+    expect(test.passages[1].attributes.position).toBe('10,290');
     expect(test.passages[2].attributes.name).toBe('StoryTitle');
     expect(test.passages[2].attributes.tags).toEqual([]);
     expect(test.passages[2].source).toEqual('Untitled Story');
     expect(test.passages[2].attributes.created).toBe('202307171900');
+    expect(test.passages[2].attributes.position).toBe('10,150');
   });
 
   it('creates stories from Twine 2 HTML', () => {
