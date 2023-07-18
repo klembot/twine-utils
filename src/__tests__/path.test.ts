@@ -1,10 +1,14 @@
 import fs from 'fs';
-import {storyDirectorySync} from '../path';
+import {storyDirectory, storyDirectorySync} from '../path';
 
 describe('Path', () => {
-	it('locates the Stories directory synchronously', () => {
-		const path = storyDirectorySync();
+  it('locates the Stories directory asynchronously', async () => {
+    const path = await storyDirectory();
 
-		expect(() => fs.accessSync(path)).not.toThrow();
-	});
+    expect(() => fs.accessSync(path)).not.toThrow();
+  });
+
+  it('locates the Stories directory synchronously', async () => {
+    expect(() => fs.accessSync(storyDirectorySync())).not.toThrow();
+  });
 });

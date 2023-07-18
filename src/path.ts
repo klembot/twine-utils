@@ -1,64 +1,91 @@
+import {accessSync} from 'fs';
+import {access} from 'fs/promises';
+import {join} from 'path';
+import {getDocumentsFolder} from 'platform-folders';
+
 /**
- * Provides a way to look up where the user's Twine directory is. Right now this
- * does not handle localized directory names :(.
+ * Possible names for the Stories folder in Twine. These were manually assembled
+ * from the translation files.
  */
-
-import fs from 'fs';
-import osenv from 'osenv';
-import path from 'path';
-
-const documentDirectoryNames = ['Documents', 'My Documents'];
-const twineDirectoryNames = ['Twine'];
-const storyDirectoryNames = ['Stories'];
+const storyDirectoryNames = [
+  '故事',
+  'Cerita',
+  'Geschichten',
+  'Histórias',
+  'Historias',
+  'Historier',
+  'Històries',
+  'Histoires',
+  'Истории',
+  'Оповідання',
+  'Öyküler',
+  'Příběhy',
+  'Racconti',
+  'Stories',
+  'Tarinat',
+  'Verhalen',
+  'Zgodbe'
+];
 
 /**
- * Returns an absolute path to the user's story directory. If it can't be found,
- * this throws an error.
+ * Returns a promise to an absolute path to the user's story directory. If it
+ * can't be found, this rejects.
+ */
+export async function storyDirectory() {
+  const documentsDirectory = getDocumentsFolder();
+
+  async function directoryExists(path: string) {
+    await access(path);
+    return path;
+  }
+
+  const twineDirectory = join(documentsDirectory, 'Twine');
+
+  try {
+    await directoryExists(twineDirectory);
+  } catch (error) {
+    throw new Error('Could not find your Twine directory');
+  }
+
+  const storiesDirectoryName = await Promise.any(
+    storyDirectoryNames.map(name => directoryExists(join(twineDirectory, name)))
+  );
+
+  if (!storiesDirectoryName) {
+    throw new Error('Could not find your Stories directory');
+  }
+
+  return storiesDirectoryName;
+}
+
+/**
+ * Synchronous version of storyDirectory().
  */
 export function storyDirectorySync() {
-	let result = osenv.home();
-	const testDir = path => {
-		try {
-			fs.accessSync(path);
-			return true;
-		} catch (e) {
-			return false;
-		}
-	};
+  const documentsDirectory = getDocumentsFolder();
 
-	// Find the documents directory.
+  function testDirectory(path: string) {
+    try {
+      accessSync(path);
+      return path;
+    } catch (e) {
+      return false;
+    }
+  }
 
-	const docDirectory = documentDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
+  const twineDirectory = join(documentsDirectory, 'Twine');
 
-	if (!docDirectory) {
-		throw new Error('Could not find your documents directory');
-	}
+  if (!testDirectory(twineDirectory)) {
+    throw new Error('Could not find your Twine directory');
+  }
 
-	result = path.join(result, docDirectory);
+  for (const name of storyDirectoryNames) {
+    const storyDirectoryName = join(twineDirectory, name);
 
-	// Find the Twine directory.
+    if (testDirectory(storyDirectoryName)) {
+      return storyDirectoryName;
+    }
+  }
 
-	const twineDirectory = twineDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
-
-	if (!twineDirectory) {
-		throw new Error('Could not find your Twine directory');
-	}
-
-	result = path.join(result, twineDirectory);
-
-	// Finally, find the Stories directory.
-
-	const storiesDirectory = storyDirectoryNames.find(dir =>
-		testDir(path.join(result, dir))
-	);
-
-	if (!storiesDirectory) {
-		throw new Error('Could not find your Stories directory');
-	}
-
-	return path.join(result, storiesDirectory);
+  throw new Error('Could not find your Stories directory');
 }

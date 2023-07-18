@@ -1,104 +1,131 @@
-import cheerio from 'cheerio';
-import {encode} from 'html-entities';
+import {decode, encode} from 'html-entities';
+import parse from 'node-html-parser';
 
-interface PassageOptions {
-	attributes?: Record<string, unknown>;
-	source?: string;
+/**
+ * Options that can be set when creating a Passage object.
+ */
+export interface PassageOptions {
+  /**
+   * Attributes on the passage, like name or tags. These appear on the
+   * `<tw-passagedata>` element when published.
+   */
+  attributes?: Record<string, unknown>;
+  /**
+   * Source text of the passage.
+   */
+  source?: string;
 }
 
 /**
- * A single passage in a story. This does not have a loadTwee() method because
+ * A single passage in a story. This does not have a `fromTwee()` method because
  * loading Twee may have story-wide effects.
  */
-export default class Passage {
-	attributes: Record<string, unknown>;
-	source: string;
+export class Passage {
+  /**
+   * Attributes on the passage, like name or tags. These appear on the
+   * `<tw-passagedata>` element when published.
+   */
+  attributes: Record<string, unknown>;
+  /**
+   * Source text of the passage.
+   */
+  source: string;
 
-	constructor(props: PassageOptions = {}) {
-		this.attributes = props.attributes || {};
-		this.source = props.source || '';
-	}
+  constructor(props: PassageOptions = {}) {
+    this.attributes = props.attributes ?? {};
+    this.source = props.source ?? '';
+  }
 
-	/**
-	 *  Loads the contents of an HTML fragment, replacing properties of this
-	 *  object.
-	 */
-	loadHtml(src: string) {
-		const $ = cheerio.load(src);
-		const $passage = $('tw-passagedata');
+  /**
+   * Creates an instance from an HTML fragment.
+   * @param source - source HTML to use
+   * @param silent - If true, doesn't issue any console warnings about potential problems
+   */
+  static fromHTML(source: string, silent = false) {
+    const root = parse(source);
 
-		if ($passage.length === 0) {
-			console.warn(
-				'Warning: there are no passages in this HTML source code.'
-			);
-			return this;
-		} else if ($passage.length > 1) {
-			console.warn(
-				'Warning: there appears to be more than one passage in this HTML source code. Using the first.'
-			);
-		}
+    const passageEls = root.querySelectorAll('tw-passagedata');
+    const result = new Passage();
 
-		this.attributes = ($passage[0] as cheerio.TagElement).attribs;
+    if (passageEls.length === 0) {
+      if (!silent) {
+        console.warn(
+          'Warning: there are no passages in this HTML source code.'
+        );
+        return result;
+      }
+    } else if (passageEls.length > 1 && !silent) {
+      console.warn(
+        'Warning: there appears to be more than one passage in this HTML source code. Using the first.'
+      );
+    }
 
-		if (typeof this.attributes.tags === 'string') {
-			this.attributes.tags = this.attributes.tags
-				.split(' ')
-				.filter(s => s.trim() !== '');
-		}
+    result.attributes = {...passageEls[0].attributes};
 
-		this.source = $passage.eq(0).text();
-		return this;
-	}
+    if (typeof result.attributes.tags === 'string') {
+      result.attributes.tags = result.attributes.tags
+        .split(' ')
+        .filter(s => s.trim() !== '');
+    }
 
-	/**
-	 * Returns an HTML fragment for this passage, optionally setting the passage
-	 * id (or pid) manually.
-	 */
-	toHtml(pid?: number) {
-		const output = cheerio.load('<tw-passagedata></tw-passagedata>');
+    result.source = decode(passageEls[0].innerHTML);
+    return result;
+  }
 
-		output('tw-passagedata')
-			.attr(this.attributes)
-			.html(encode(this.source));
+  /**
+   * Returns an HTML fragment for this passage, optionally setting the passage
+   * id (or pid) manually.
+   * @param pid - PID to set in the published HTML
+   */
+  toHTML(pid?: number) {
+    const root = parse('<div><tw-passagedata></tw-passagedata></div>');
+    const output = root.querySelector('tw-passagedata');
 
-		if (pid || typeof this.attributes.pid === 'string') {
-			output('tw-passagedata').attr(
-				'pid',
-				pid ? pid.toString() : (this.attributes.pid as string)
-			);
-		}
+    for (const attrib in this.attributes) {
+      output.setAttribute(attrib, encode(this.attributes[attrib].toString()));
+    }
 
-		return output.html();
-	}
+    output.innerHTML = encode(this.source);
 
-	/**
-	 * Returns Twee source code for this story. *Warning:* if the Twee version
-	 * specified is less than 3, this is a lossy conversion.
-	 * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
-	 */
-	toTwee(tweeVersion = 3) {
-		let output = `:: ${this.attributes.name}`;
+    if (pid || typeof this.attributes.pid === 'string') {
+      output.setAttribute(
+        'pid',
+        pid ? pid.toString() : (this.attributes.pid as string)
+      );
+    }
 
-		if (
-			Array.isArray(this.attributes.tags) &&
-			this.attributes.tags.length > 0
-		) {
-			output += ` [${this.attributes.tags.join(' ')}]`;
-		}
+    return output.outerHTML;
+  }
 
-		if (tweeVersion >= 3) {
-			const extraAttributes = JSON.stringify({
-				...this.attributes,
-				name: undefined,
-				pid: undefined,
-				tags: undefined
-			});
+  /**
+   * Returns Twee source code for this story. *Warning:* if the Twee version
+   * specified is less than 3, this is a lossy conversion.
+   * @param tweeVersion version of the Twee spec to use
+   * @see https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md
+   */
+  toTwee(tweeVersion = 3) {
+    let output = `:: ${this.attributes.name}`;
 
-			if (extraAttributes !== '{}') {
-				output += ` ${extraAttributes}`;
-			}
-		}
+    if (
+      Array.isArray(this.attributes.tags) &&
+      this.attributes.tags.length > 0
+    ) {
+      output += ` [${this.attributes.tags.join(' ')}]`;
+    }
 
-		return output + `\n${this.source}`;
-	}
+    if (tweeVersion >= 3) {
+      const extraAttributes = JSON.stringify({
+        ...this.attributes,
+        name: undefined,
+        pid: undefined,
+        tags: undefined
+      });
+
+      if (extraAttributes !== '{}') {
+        output += ` ${extraAttributes}`;
+      }
+    }
+
+    return output + `\n${this.source}`;
+  }
 }
