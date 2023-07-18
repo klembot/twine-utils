@@ -181,7 +181,9 @@ export class Story {
         passage.attributes.created = tiddler.getAttribute('created');
         passage.attributes.modifier = tiddler.getAttribute('modifier');
 
-        passage.source = decode(tiddler.innerHTML);
+        // Twine 1 encoded newlines as `\n` literally.
+
+        passage.source = decode(tiddler.innerHTML).replace(/\\n/g, '\n');
 
         // The starting passage in TWS stories always had to be named `Start`.
 
