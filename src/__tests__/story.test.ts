@@ -62,7 +62,7 @@ describe('Story', () => {
     expect(test.stylesheet).toBe('\nline 1\nline 2');
   });
 
-  it.only('creates stories from Twine 1 HTML', () => {
+  it('creates stories from Twine 1 HTML', () => {
     const test = Story.fromHTML(testStoryTwine1Html, 1);
 
     // Have to do individual comparisons because these are instances of a class.
