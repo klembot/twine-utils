@@ -167,19 +167,13 @@ export class Story {
         // Mappable attributes.
 
         passage.attributes.name = tiddler.getAttribute('tiddler');
+        passage.attributes.position = tiddler.getAttribute('twine-position');
 
         if (tiddler.getAttribute('tags') !== '') {
           console.log(tiddler.getAttribute('tags'));
           passage.attributes.tags = tiddler.getAttribute('tags').split(' ');
         } else {
           passage.attributes.tags = [];
-        }
-
-        if (tiddler.getAttribute('twine-position')) {
-          passage.attributes.position = tiddler
-            .getAttribute('twine-position')
-            .split('n')
-            .map(parseFloat);
         }
 
         // Unmappable attributes.
