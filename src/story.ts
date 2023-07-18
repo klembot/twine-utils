@@ -1,3 +1,4 @@
+import {decode} from 'html-entities';
 import parse from 'node-html-parser';
 import {Parser} from 'pickleparser';
 import {Passage} from './passage';
@@ -170,7 +171,6 @@ export class Story {
         passage.attributes.position = tiddler.getAttribute('twine-position');
 
         if (tiddler.getAttribute('tags') !== '') {
-          console.log(tiddler.getAttribute('tags'));
           passage.attributes.tags = tiddler.getAttribute('tags').split(' ');
         } else {
           passage.attributes.tags = [];
@@ -181,7 +181,7 @@ export class Story {
         passage.attributes.created = tiddler.getAttribute('created');
         passage.attributes.modifier = tiddler.getAttribute('modifier');
 
-        passage.source = tiddler.innerHTML;
+        passage.source = decode(tiddler.innerHTML);
 
         // The starting passage in TWS stories always had to be named `Start`.
 
