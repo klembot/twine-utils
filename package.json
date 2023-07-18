@@ -1,6 +1,9 @@
 {
   "name": "twine-utils",
   "version": "3.0.0",
+  "engines": {
+    "node": ">= 16.0.0"
+  },
   "description": "Utilities for working with Twine 2 stories and story formats.",
   "author": "Chris Klimas <chris@twinery.org>",
   "license": "GPL-3.0",
