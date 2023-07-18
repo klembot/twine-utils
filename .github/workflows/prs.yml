@@ -1,0 +1,33 @@
+name: CI for PRs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 16.x, 14.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: install
+      # mkdir is so that tests related to Twine stories path pass
+      run: |
+        mkdir -p ~/Documents/Twine/Stories
+        npm ci
+    - name: build
+      run: npm run build
+    - name: lint
+      run: npm run lint:noisy
+    - name: test
+      run: npm test
