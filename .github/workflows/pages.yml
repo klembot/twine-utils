@@ -1,0 +1,30 @@
+name: Publish docs to GitHub pages
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v2
+        with:
+          cache: npm
+          node-version: 14
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run typedoc
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs
+      - uses: actions/deploy-pages@v1
