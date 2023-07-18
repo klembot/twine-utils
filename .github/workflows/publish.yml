@@ -9,11 +9,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
     - name: install
       # mkdir is so that tests related to Twine stories path pass
       run: |
@@ -25,6 +22,6 @@ jobs:
       run: npm run lint:noisy
     - name: test
       run: npm test
-    - uses: JS-DevTools/npm-publish@v1
+    - uses: JS-DevTools/npm-publish@v2
       with:
         token: ${{ secrets.NPM_TOKEN }}
