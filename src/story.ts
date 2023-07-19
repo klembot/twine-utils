@@ -339,6 +339,7 @@ export class Story {
       // Mappable attributes.
 
       passage.attributes.name = widget.passage.title;
+      passage.attributes.position = `${widget.pos[0]},${widget.pos[1]}`;
       passage.attributes.tags = widget.passage.tags;
       passage.source = widget.passage.text;
 
