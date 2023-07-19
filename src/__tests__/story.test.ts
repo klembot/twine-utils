@@ -194,24 +194,28 @@ describe('Story', () => {
     );
     expect(test.passages[0].attributes.created).toEqual({});
     expect(test.passages[0].attributes.modified).toEqual({});
+    expect(test.passages[0].attributes.position).toBe('10,10');
     expect(test.passages[0].attributes.selected).toBe(false);
     expect(test.passages[1].attributes.name).toBe('StoryTitle');
     expect(test.passages[1].attributes.tags).toEqual([]);
     expect(test.passages[1].source).toEqual('Untitled Story');
     expect(test.passages[1].attributes.created).toEqual({});
     expect(test.passages[1].attributes.modified).toEqual({});
+    expect(test.passages[1].attributes.position).toBe('10,150');
     expect(test.passages[1].attributes.selected).toBe(false);
     expect(test.passages[2].attributes.name).toBe('StoryAuthor');
     expect(test.passages[2].attributes.tags).toEqual([]);
     expect(test.passages[2].source).toEqual('Anonymous');
     expect(test.passages[2].attributes.created).toEqual({});
     expect(test.passages[2].attributes.modified).toEqual({});
+    expect(test.passages[2].attributes.position).toBe('10,290');
     expect(test.passages[2].attributes.selected).toBe(false);
     expect(test.passages[3].attributes.name).toBe('Tagged Passage');
     expect(test.passages[3].attributes.tags).toEqual(['tag1', 'tag2']);
     expect(test.passages[3].source).toEqual('This passage has tags.');
     expect(test.passages[3].attributes.created).toEqual({});
     expect(test.passages[3].attributes.modified).toEqual({});
+    expect(test.passages[3].attributes.position).toBe('262,10');
     expect(test.passages[3].attributes.selected).toBe(true);
   });
 
